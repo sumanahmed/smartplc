@@ -42,6 +42,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddTo
         <Image
           src={product.image}
           alt={product.name}
+          width={300}
+          height={300}
           className="w-full h-48 object-cover"
         />
         

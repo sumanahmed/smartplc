@@ -5,6 +5,7 @@ import { Search, ShoppingCart, Heart, User, ChevronDown } from 'lucide-react';
 import CartSidebar from './CartSidebar';
 import AuthModal from './AuthModal'; // Import AuthModal
 import Image from 'next/image';
+import logo from '../../../public/logo.png'
 
 interface CartItem {
   id: number;
@@ -139,7 +140,7 @@ const Header: React.FC = () => {
             <div className="flex-shrink-0">
               <h1 className="text-2xl font-bold text-gray-900">
                 <a href="/">
-                  <Image src="./logo.png"  alt="Smart PLC BD"/>
+                  <Image src={logo} width={300} height={300} alt="Smart PLC BD"/>
                 </a>
               </h1>
             </div>

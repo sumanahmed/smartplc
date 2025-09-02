@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
+import sliderImg1 from '../../../public/slider-images/1.jpeg'
+import sliderImg2 from '../../../public/slider-images/2.jpeg'
+import sliderImg3 from '../../../public/slider-images/3.jpeg'
 
 const HeroCarousel: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -11,7 +14,7 @@ const HeroCarousel: React.FC = () => {
       title: "Summer Collection 2024",
       subtitle: "Discover the latest trends",
       description: "Up to 50% off on all summer essentials",
-      image: "https://images.pexels.com/photos/45982/pexels-photo-45982.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1", // Clothing product
+      image: sliderImg1, // Clothing product
       buttonText: "Shop Now",
       buttonColor: "bg-blue-600 hover:bg-blue-700"
     },
@@ -20,7 +23,7 @@ const HeroCarousel: React.FC = () => {
       title: "Tech Innovation",
       subtitle: "Latest gadgets & electronics",
       description: "Free shipping on orders over $99",
-      image: "https://images.pexels.com/photos/1632790/pexels-photo-1632790.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1", // Valid electronics product (laptop)
+      image: sliderImg2,  
       buttonText: "Explore",
       buttonColor: "bg-gray-900 hover:bg-gray-800"
     },
@@ -29,7 +32,7 @@ const HeroCarousel: React.FC = () => {
       title: "Home & Living",
       subtitle: "Transform your space",
       description: "New arrivals with modern designs",
-      image: "https://images.pexels.com/photos/276583/pexels-photo-276583.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1", // Home decor product
+      image: sliderImg3, // Home decor product
       buttonText: "Browse",
       buttonColor: "bg-green-600 hover:bg-green-700"
     }
@@ -88,6 +91,8 @@ const HeroCarousel: React.FC = () => {
                         <Image
                             src={slide.image}
                             alt={slide.title}
+                            width={300}
+                            height={300}
                             className="w-full h-full object-cover rounded-xl"
                         />
                       </div>
