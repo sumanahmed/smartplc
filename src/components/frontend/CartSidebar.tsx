@@ -86,6 +86,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                     <Image
                       src={item.image}
                       alt={item.name}
+                      width={300}
+                      height={300}
                       className="w-16 h-16 object-cover rounded-md"
                     />
                     <div className="flex-1">
