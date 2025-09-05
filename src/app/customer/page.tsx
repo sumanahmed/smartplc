@@ -1,8 +1,14 @@
 
 'use client';
 import React, { useState } from 'react'
-import { User, MapPin, CreditCard, Package, Heart, Settings, Edit2, Save, X } from 'lucide-react';
+import { User, MapPin, CreditCard, Package, Heart, Settings, Edit2, Save, X, Eye, Link } from 'lucide-react';
 import Image from 'next/image';
+import OrderDetails from '../../components/frontend/customer/OrderDetails';
+import Address from '../../components/frontend/customer/Address';
+import OrderHistory from '../../components/frontend/customer/OrderHistory';
+import PaymentMethods from '../../components/frontend/customer/PaymentMethods';
+import type { WishlistItem } from '../../components/frontend/customer/Wishlist';
+import Wishlist from '../../components/frontend/customer/Wishlist';
 
 // interface CustomerProfileProps {
 //     user: {
@@ -45,12 +51,23 @@ const CustomerPage = () => {
         firstName : 'Rahat',
         lastName: 'Khan',
         email: 'rahat@gmail.com',
-        phone: '01290333333'
+        phone: '01290333333',
+        avatar: '',
+        joinDate: 'January 2024'
     })
     const [isEditing, setIsEditing] = useState(false);
     const [editingAddress, setEditingAddress] = useState<string | null>(null);
     const [showAddAddress, setShowAddAddress] = useState(false);
     const [showAddPayment, setShowAddPayment] = useState(false);
+    const [editingAddressData, setEditingAddressData] = useState({
+        type: 'home' as 'home' | 'work' | 'other',
+        name: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        isDefault: false
+    });
     const [profileData, setProfileData] = useState({
         firstName: user.firstName,
         lastName: user.lastName,
@@ -69,12 +86,282 @@ const CustomerPage = () => {
     });
 
     const [newPayment, setNewPayment] = useState({
+        paymentType: 'card' as 'card' | 'bkash' | 'nagad',
         cardNumber: '',
         expiryDate: '',
         cvv: '',
         nameOnCard: '',
+        phone: '',
         isDefault: false
     });
+
+    const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([
+        { id: 'w1', name: 'Wireless Earbuds', price: 59.99, image: '/logo.png' },
+        { id: 'w2', name: 'Smart Watch', price: 149.00, image: '/logo.png' },
+        { id: 'w3', name: 'Laptop Stand', price: 39.50, image: '/logo.png' }
+    ]);
+
+    // const [activeTab, setActiveTab] = useState ('profile');
+
+    const [orders, setOrders] = useState([
+        {
+            id: '1',
+            orderNumber: 'ORD-2024-001',
+            date: '2024-01-15',
+            items: [
+                { 
+                    id: '1', 
+                    name: 'Wireless Bluetooth Headphones', 
+                    quantity: 1, 
+                    price: 80,
+                    image: '/logo.png',
+                    category: 'Electronics'
+                }
+            ],
+            status: 'delivered',
+            paymentStatus: 'Paid',
+            paymentMethod: 'Credit Card',
+            total: 100,
+            subtotal: 80,
+            shipping: 15,
+            tax: 5,
+            shippingAddress: {
+                name: 'Rahat Khan',
+                address: '123 Main Street',
+                city: 'Dhaka',
+                state: 'Dhaka',
+                zipCode: '1000',
+                phone: '01290333333'
+            },
+            trackingNumber: 'TRK123456789',
+            estimatedDelivery: '2024-01-20',
+            actualDelivery: '2024-01-18'
+        },
+        {
+            id: '2',
+            orderNumber: 'ORD-2024-002',
+            date: '2024-01-20',
+            items: [
+                { 
+                    id: '2', 
+                    name: 'Smart Watch Series 5', 
+                    quantity: 1, 
+                    price: 150,
+                    image: '/logo.png',
+                    category: 'Electronics'
+                },
+                { 
+                    id: '3', 
+                    name: 'Phone Case', 
+                    quantity: 2, 
+                    price: 25,
+                    image: '/logo.png',
+                    category: 'Accessories'
+                }
+            ],
+            status: 'processing',
+            paymentStatus: 'Pending',
+            paymentMethod: 'Bkash',
+            total: 200,
+            subtotal: 200,
+            shipping: 0,
+            tax: 0,
+            shippingAddress: {
+                name: 'Rahat Khan',
+                address: '456 Business Ave',
+                city: 'Dhaka',
+                state: 'Dhaka',
+                zipCode: '1001',
+                phone: '01290333333'
+            },
+            trackingNumber: null,
+            estimatedDelivery: '2024-01-25',
+            actualDelivery: null
+        },
+        {
+            id: '3',
+            orderNumber: 'ORD-2024-003',
+            date: '2024-01-25',
+            items: [
+                { 
+                    id: '4', 
+                    name: 'Laptop Stand', 
+                    quantity: 1, 
+                    price: 45,
+                    image: '/logo.png',
+                    category: 'Office'
+                },
+                { 
+                    id: '5', 
+                    name: 'Wireless Mouse', 
+                    quantity: 1, 
+                    price: 30,
+                    image: '/logo.png',
+                    category: 'Electronics'
+                },
+                { 
+                    id: '6', 
+                    name: 'USB Cable', 
+                    quantity: 3, 
+                    price: 15,
+                    image: '/logo.png',
+                    category: 'Accessories'
+                }
+            ],
+            status: 'shipped',
+            paymentStatus: 'Paid',
+            paymentMethod: 'Credit Card',
+            total: 300,
+            subtotal: 120,
+            shipping: 20,
+            tax: 10,
+            shippingAddress: {
+                name: 'Rahat Khan',
+                address: '123 Main Street',
+                city: 'Dhaka',
+                state: 'Dhaka',
+                zipCode: '1000',
+                phone: '01290333333'
+            },
+            trackingNumber: 'TRK987654321',
+            estimatedDelivery: '2024-01-30',
+            actualDelivery: null
+        },
+        {
+            id: '4',
+            orderNumber: 'ORD-2024-004',
+            date: '2024-02-01',
+            items: [
+                { 
+                    id: '7', 
+                    name: 'Gaming Keyboard', 
+                    quantity: 1, 
+                    price: 120,
+                    image: '/logo.png',
+                    category: 'Gaming'
+                },
+                { 
+                    id: '8', 
+                    name: 'Gaming Mouse', 
+                    quantity: 1, 
+                    price: 80,
+                    image: '/logo.png',
+                    category: 'Gaming'
+                }
+            ],
+            status: 'delivered',
+            paymentStatus: 'Failed',
+            paymentMethod: 'Credit Card',
+            total: 400,
+            subtotal: 200,
+            shipping: 25,
+            tax: 15,
+            shippingAddress: {
+                name: 'Rahat Khan',
+                address: '123 Main Street',
+                city: 'Dhaka',
+                state: 'Dhaka',
+                zipCode: '1000',
+                phone: '01290333333'
+            },
+            trackingNumber: 'TRK456789123',
+            estimatedDelivery: '2024-02-05',
+            actualDelivery: '2024-02-04'
+        },
+        {
+            id: '5',
+            orderNumber: 'ORD-2024-005',
+            date: '2024-02-10',
+            items: [
+                { 
+                    id: '9', 
+                    name: 'Monitor 24 inch', 
+                    quantity: 1, 
+                    price: 300,
+                    image: '/logo.png',
+                    category: 'Electronics'
+                },
+                { 
+                    id: '10', 
+                    name: 'Monitor Stand', 
+                    quantity: 1, 
+                    price: 50,
+                    image: '/logo.png',
+                    category: 'Office'
+                },
+                { 
+                    id: '11', 
+                    name: 'HDMI Cable', 
+                    quantity: 2, 
+                    price: 25,
+                    image: '/logo.png',
+                    category: 'Accessories'
+                }
+            ],
+            status: 'processing',
+            paymentStatus: 'Failed',
+            paymentMethod: 'Bank Transfer',
+            total: 500,
+            subtotal: 400,
+            shipping: 30,
+            tax: 20,
+            shippingAddress: {
+                name: 'Rahat Khan',
+                address: '456 Business Ave',
+                city: 'Dhaka',
+                state: 'Dhaka',
+                zipCode: '1001',
+                phone: '01290333333'
+            },
+            trackingNumber: null,
+            estimatedDelivery: '2024-02-15',
+            actualDelivery: null
+        }
+    ]);
+
+    // Sample data for addresses and payment methods
+    const [addresses, setAddresses] = useState([
+        {
+            id: '1',
+            type: 'home' as 'home' | 'work' | 'other',
+            name: 'John Doe',
+            address: '123 Main Street',
+            city: 'New York',
+            state: 'NY',
+            zipCode: '10001',
+            isDefault: true
+        },
+        {
+            id: '2',
+            type: 'work' as 'home' | 'work' | 'other',
+            name: 'John Doe',
+            address: '456 Business Ave',
+            city: 'New York',
+            state: 'NY',
+            zipCode: '10002',
+            isDefault: false
+        }
+    ]);
+
+    type PaymentMethodType = {
+        id: string;
+        type: 'card' | 'bkash' | 'nagad';
+        last4?: string;
+        brand?: string;
+        expiryDate?: string;
+        isDefault: boolean;
+    };
+
+    const [paymentMethods, setPaymentMethods] = useState<PaymentMethodType[]>([
+        {
+            id: '1',
+            type: 'card' as 'card' | 'bkash' | 'nagad',
+            last4: '1234',
+            brand: 'Visa',
+            expiryDate: '12/25',
+            isDefault: true
+        }
+    ]);
     
     const tabs = [
         { id: 'profile', label: 'Profile', icon: User },
@@ -82,16 +369,20 @@ const CustomerPage = () => {
         { id: 'payments', label: 'Payment Methods', icon: CreditCard },
         { id: 'orders', label: 'Order History', icon: Package },
         { id: 'wishlist', label: 'Wishlist', icon: Heart },
-        { id: 'settings', label: 'Settings', icon: Settings }
+        { id: 'change_password', label: 'Change Password', icon: Settings }
     ]
 
     const handleSaveProfile = () => {
-        onUpdateProfile(profileData);
+        setUserDetails({
+          ...user,
+          ...profileData
+        });
         setIsEditing(false);
       };
     
       const handleAddAddress = () => {
-        onAddAddress(newAddress);
+        const newId = (addresses.length + 1).toString();
+        setAddresses([...addresses, { ...newAddress, id: newId }]);
         setNewAddress({
           type: 'home',
           name: '',
@@ -105,24 +396,112 @@ const CustomerPage = () => {
       };
     
       const handleAddPayment = () => {
-        onAddPaymentMethod({
-          type: 'card',
-          last4: newPayment.cardNumber.slice(-4),
-          brand: 'Visa', // This would be determined by card number
-          expiryDate: newPayment.expiryDate,
-          isDefault: newPayment.isDefault
-        });
+        const newId = (paymentMethods.length + 1).toString();
+        if (newPayment.paymentType === 'card') {
+          setPaymentMethods([...paymentMethods, {
+            id: newId,
+            type: 'card' as 'card' | 'bkash' | 'nagad',
+            last4: newPayment.cardNumber.slice(-4),
+            brand: 'Visa',
+            expiryDate: newPayment.expiryDate,
+            isDefault: newPayment.isDefault
+          }]);
+        } else {
+          const providerBrand = newPayment.paymentType === 'bkash' ? 'bKash' : 'Nagad';
+          setPaymentMethods([...paymentMethods, {
+            id: newId,
+            type: newPayment.paymentType,
+            last4: newPayment.phone.slice(-4),
+            brand: providerBrand,
+            expiryDate: undefined,
+            isDefault: newPayment.isDefault
+          }]);
+        }
         setNewPayment({
+          paymentType: 'card',
           cardNumber: '',
           expiryDate: '',
           cvv: '',
           nameOnCard: '',
+          phone: '',
           isDefault: false
         });
         setShowAddPayment(false);
       };
 
+      const handleDeleteAddress = (id: string) => {
+        setAddresses(addresses.filter(address => address.id !== id));
+      };
+
+      const handleDeletePaymentMethod = (id: string) => {
+        setPaymentMethods(paymentMethods.filter(method => method.id !== id));
+      };
+
+      const handleEditAddress = (addressId: string) => {
+        const address = addresses.find(addr => addr.id === addressId);
+        if (address) {
+          setEditingAddressData({
+            type: address.type,
+            name: address.name,
+            address: address.address,
+            city: address.city,
+            state: address.state,
+            zipCode: address.zipCode,
+            isDefault: address.isDefault
+          });
+          setEditingAddress(addressId);
+        }
+      };
+
+      const handleUpdateAddress = () => {
+        if (editingAddress) {
+          setAddresses(addresses.map(address => 
+            address.id === editingAddress 
+              ? { ...address, ...editingAddressData }
+              : address
+          ));
+          setEditingAddress(null);
+          setEditingAddressData({
+            type: 'home',
+            name: '',
+            address: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            isDefault: false
+          });
+        }
+      };
+
+      const handleCancelEditAddress = () => {
+        setEditingAddress(null);
+        setEditingAddressData({
+          type: 'home',
+          name: '',
+          address: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          isDefault: false
+        });
+      };
+
+      const handleViewOrderDetails = (orderId: string) => {
+        const order = orders.find(o => o.id === orderId);
+        if (order) {
+          setSelectedOrder(order);
+          setShowOrderDetails(true);
+        }
+      };
+
+      const handleBackToOrders = () => {
+        setShowOrderDetails(false);
+        setSelectedOrder(null);
+      };
+
     const [activeTab, setActiveTab] = useState ('profile');
+    const [showOrderDetails, setShowOrderDetails] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
     const renderProfileTab = () => (
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -222,286 +601,11 @@ const CustomerPage = () => {
         </div>
       );
     
-      const renderAddressesTab = () => (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Saved Addresses</h2>
-            <button
-              onClick={() => setShowAddAddress(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Add New Address
-            </button>
-          </div>
+      
     
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {addresses.map((address) => (
-              <div key={address.id} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="capitalize font-medium text-gray-900">{address.type}</span>
-                    {address.isDefault && (
-                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Default</span>
-                    )}
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => setEditingAddress(address.id)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => onDeleteAddress(address.id)}
-                      className="text-red-400 hover:text-red-600"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <p className="font-medium text-gray-900">{address.name}</p>
-                  <p>{address.address}</p>
-                  <p>{address.city}, {address.state} {address.zipCode}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-    
-          {/* Add Address Modal */}
-          {showAddAddress && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div className="flex justify-between items-center p-6 border-b">
-                  <h3 className="text-lg font-semibold text-gray-900">Add New Address</h3>
-                  <button
-                    onClick={() => setShowAddAddress(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="h-6 w-6" />
-                  </button>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Address Type</label>
-                    <select
-                      value={newAddress.type}
-                      onChange={(e) => setNewAddress({ ...newAddress, type: e.target.value as 'home' | 'work' | 'other' })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="home">Home</option>
-                      <option value="work">Work</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={newAddress.name}
-                      onChange={(e) => setNewAddress({ ...newAddress, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                    <input
-                      type="text"
-                      value={newAddress.address}
-                      onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                      <input
-                        type="text"
-                        value={newAddress.city}
-                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                      <input
-                        type="text"
-                        value={newAddress.state}
-                        onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
-                    <input
-                      type="text"
-                      value={newAddress.zipCode}
-                      onChange={(e) => setNewAddress({ ...newAddress, zipCode: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="defaultAddress"
-                      checked={newAddress.isDefault}
-                      onChange={(e) => setNewAddress({ ...newAddress, isDefault: e.target.checked })}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label htmlFor="defaultAddress" className="ml-2 text-sm text-gray-600">
-                      Set as default address
-                    </label>
-                  </div>
-                </div>
-                <div className="flex justify-end space-x-3 p-6 border-t">
-                  <button
-                    onClick={() => setShowAddAddress(false)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddAddress}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Add Address
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    
-      const renderPaymentMethodsTab = () => (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Payment Methods</h2>
-            <button
-              onClick={() => setShowAddPayment(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Add Payment Method
-            </button>
-          </div>
-    
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {paymentMethods.map((method) => (
-              <div key={method.id} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <CreditCard className="h-8 w-8 text-gray-400" />
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {method.brand} •••• {method.last4}
-                      </p>
-                      <p className="text-sm text-gray-600">Expires {method.expiryDate}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {method.isDefault && (
-                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Default</span>
-                    )}
-                    <button
-                      onClick={() => onDeletePaymentMethod(method.id)}
-                      className="text-red-400 hover:text-red-600"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-    
-        {/* Add Payment Method Modal */}
-        {showAddPayment && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div className="flex justify-between items-center p-6 border-b">
-                  <h3 className="text-lg font-semibold text-gray-900">Add Payment Method</h3>
-                  <button
-                    onClick={() => setShowAddPayment(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="h-6 w-6" />
-                  </button>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Card Number</label>
-                    <input
-                      type="text"
-                      value={newPayment.cardNumber}
-                      onChange={(e) => setNewPayment({ ...newPayment, cardNumber: e.target.value })}
-                      placeholder="1234 5678 9012 3456"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
-                      <input
-                        type="text"
-                        value={newPayment.expiryDate}
-                        onChange={(e) => setNewPayment({ ...newPayment, expiryDate: e.target.value })}
-                        placeholder="MM/YY"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">CVV</label>
-                      <input
-                        type="text"
-                        value={newPayment.cvv}
-                        onChange={(e) => setNewPayment({ ...newPayment, cvv: e.target.value })}
-                        placeholder="123"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Name on Card</label>
-                    <input
-                      type="text"
-                      value={newPayment.nameOnCard}
-                      onChange={(e) => setNewPayment({ ...newPayment, nameOnCard: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="defaultPayment"
-                      checked={newPayment.isDefault}
-                      onChange={(e) => setNewPayment({ ...newPayment, isDefault: e.target.checked })}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <label htmlFor="defaultPayment" className="ml-2 text-sm text-gray-600">
-                      Set as default payment method
-                    </label>
-                  </div>
-                </div>
-                <div className="flex justify-end space-x-3 p-6 border-t">
-                  <button
-                    onClick={() => setShowAddPayment(false)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddPayment}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Add Payment Method
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      );
+      
+
+      
     
   return (
     
@@ -511,7 +615,7 @@ const CustomerPage = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar */}
         <div className="lg:w-64">
-          <nav className="bg-white rounded-lg shadow-md p-4">
+          <nav className="bg-white rounded-lg shadow-md p-4 w-64">
             <ul className="space-y-2">
               {tabs.map((tab) => (
                 <li key={tab.id}>
@@ -535,24 +639,61 @@ const CustomerPage = () => {
         {/* Main Content */}
         <div className="flex-1">
           {activeTab === 'profile' && renderProfileTab()}
-          {activeTab === 'addresses' && renderAddressesTab()}
-          {activeTab === 'payments' && renderPaymentMethodsTab()}
-          {activeTab === 'orders' && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Order History</h2>
-              <p className="text-gray-600">Your recent orders will appear here.</p>
-            </div>
+          {activeTab === 'addresses' && (
+            <Address
+              addresses={addresses}
+              showAddAddress={showAddAddress}
+              setShowAddAddress={setShowAddAddress}
+              newAddress={newAddress}
+              setNewAddress={setNewAddress}
+              editingAddress={editingAddress}
+              editingAddressData={editingAddressData}
+              setEditingAddressData={setEditingAddressData}
+              onEditAddress={handleEditAddress}
+              onDeleteAddress={handleDeleteAddress}
+              onAddAddress={handleAddAddress}
+              onUpdateAddress={handleUpdateAddress}
+              onCancelEditAddress={handleCancelEditAddress}
+            />
+          )}
+          {activeTab === 'payments' && (
+            <PaymentMethods
+              paymentMethods={paymentMethods}
+              showAddPayment={showAddPayment}
+              setShowAddPayment={setShowAddPayment}
+              newPayment={newPayment}
+              setNewPayment={setNewPayment}
+              onAddPayment={handleAddPayment}
+              onDeletePaymentMethod={handleDeletePaymentMethod}
+            />
+          )}
+          {activeTab === 'orders' && !showOrderDetails && (
+            <OrderHistory orders={orders as any} onViewDetails={handleViewOrderDetails} />
+          )}
+          {activeTab === 'orders' && showOrderDetails && selectedOrder && (
+            <OrderDetails order={selectedOrder} onBack={handleBackToOrders} />
           )}
           {activeTab === 'wishlist' && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Wishlist</h2>
-              <p className="text-gray-600">Your saved items will appear here.</p>
-            </div>
+            <Wishlist items={wishlistItems} />
           )}
-          {activeTab === 'settings' && (
+          {activeTab === 'change_password' && (
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Account Settings</h2>
-              <p className="text-gray-600">Manage your account preferences and privacy settings.</p>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Change Password</h2>
+              <div className='grid grid-cols-2 gap-4'>
+                <div className='col-span-2'>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Old Password</label>
+                  <input type="password" placeholder="Old Password" className="w-full p-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                  <input type="password" placeholder="New Password" className="w-full p-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                  <input type="password" placeholder="Confirm Password" className="w-full p-2 border border-gray-300 rounded-md" />
+                </div>
+              </div>
+              <button className="w-full p-2 bg-blue-600 text-white rounded-md mt-4 hover:bg-blue-700 transition-colors cursor-pointer">Change Password</button>
             </div>
           )}
         </div>

@@ -140,7 +140,7 @@ const Header: React.FC = () => {
             <div className="flex-shrink-0">
               <h1 className="text-2xl font-bold text-gray-900">
                 <a href="/">
-                  <Image src={logo} width={300} height={300} alt="Smart PLC BD"/>
+                  <Image src={logo} className='w-40' alt="Smart PLC BD"/>
                 </a>
               </h1>
             </div>
