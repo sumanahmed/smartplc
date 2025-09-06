@@ -1,8 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next';
 // import { GeistSans, GeistMono } from 'geist/font';
-import Header from '@/components/frontend/Header';
-import Footer from '@/components/frontend/Footer';
+import FrontendLayout from '@/components/frontend/FrontendLayout';
 import './globals.css';
 
 const OG_URL = 'https://smartplcbd.com';
@@ -34,11 +33,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-gray-100 text-gray-900">
-        <Header />
-        <main className="min-h-screen container mx-auto px-4 py-8">
+        <FrontendLayout>
           {children}
-        </main>
-        <Footer />
+        </FrontendLayout>
       </body>
     </html>
   );

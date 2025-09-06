@@ -14,13 +14,7 @@ interface CartItem {
   color?: string;
 }
 
-interface CheckoutPageProps {
-  cartItems: CartItem[];
-  onOrderComplete: () => void;
-  onBackToCart: () => void;
-}
-
-const CheckoutPage: React.FC<CheckoutPageProps> = ({ cartItems, onOrderComplete, onBackToCart }) => {
+const CheckoutPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
@@ -77,7 +71,13 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cartItems, onOrderComplete,
         }
       ]
     };
-    // onOrderComplete(order);
+    // Handle order completion - could redirect to success page
+    console.log('Order completed:', order);
+  };
+
+  const handleBackToCart = () => {
+    // Handle back to cart - could use router to navigate
+    window.history.back();
   };
 
   const steps = [
@@ -90,7 +90,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cartItems, onOrderComplete,
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-6">
         <button
-          onClick={onBackToCart}
+          onClick={handleBackToCart}
           className="text-blue-600 hover:text-blue-800 font-medium"
         >
           ← Back to Cart

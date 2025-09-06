@@ -14,7 +14,7 @@ interface CartItem {
 
 interface CheckoutPageProps {
   cartItems: CartItem[];
-  onOrderComplete: () => void;
+  onOrderComplete: (order: any) => void;
   onBackToCart: () => void;
 }
 
