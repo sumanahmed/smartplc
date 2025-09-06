@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface Product {
   id: number;
@@ -23,10 +24,15 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddToWishlist }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const router = useRouter();
 
   const handleWishlistClick = () => {
     setIsWishlisted(!isWishlisted);
     onAddToWishlist(product);
+  };
+
+  const handleProductClick = () => {
+    router.push(`/product/${product.id}`);
   };
 
   const discount = product.originalPrice ? 
@@ -85,7 +91,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddTo
       
       <div className="p-4">
         <p className="text-xs text-gray-500 mb-1">{product.category}</p>
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
+        <h3 
+          className="font-semibold text-gray-900 mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+          onClick={handleProductClick}
+        >
+          {product.name}
+        </h3>
         
         <div className="flex items-center mb-2">
           <div className="flex items-center">

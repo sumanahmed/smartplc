@@ -1,22 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Heart, ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw } from 'lucide-react';
 import Image from 'next/image';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  images: string[];
-  rating: number;
-  reviews: number;
-  category: string;
-  inStock: boolean;
-  description: string;
-  sizes: string[];
-  colors: string[];
-}
+import { Product } from '@/data/products';
 
 interface ProductDetailsProps {
   product: Product;
@@ -50,13 +35,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
         <div className="space-y-4">
           <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
             <Image
-              src={product.images[selectedImage]}
+              src={product.images?.[selectedImage] || product.image}
               alt={product.name}
+              width={500}
+              height={500}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex space-x-2 overflow-x-auto">
-            {product.images.map((image, index) => (
+            {(product.images || [product.image]).map((image, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
@@ -66,9 +53,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
               >
                 <Image
                   src={image}
-                  width="200"
-                  height="300"
                   alt={`${product.name} ${index + 1}`}
+                  width={200}
+                  height={300}
                   className="w-full h-full object-cover"
                 />
               </button>
@@ -114,7 +101,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
           </div>
 
           {/* Size Selection */}
-          {product.sizes.length > 0 && (
+          {product.sizes && product.sizes.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
               <div className="flex flex-wrap gap-2">
@@ -136,7 +123,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
           )}
 
           {/* Color Selection */}
-          {product.colors.length > 0 && (
+          {product.colors && product.colors.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-gray-900 mb-3">Color</h3>
               <div className="flex flex-wrap gap-2">
@@ -197,10 +184,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
           </div>
 
           {/* Product Description */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
-            <p className="text-gray-600 leading-relaxed">{product.description}</p>
-          </div>
+          {product.description && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+              <p className="text-gray-600 leading-relaxed">{product.description}</p>
+            </div>
+          )}
 
           {/* Features */}
           <div className="border-t pt-6">

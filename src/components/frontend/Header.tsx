@@ -133,6 +133,20 @@ const Header: React.FC = () => {
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div area-label='Top Header' className='bg-blue-600'>
+        <div className='container mx-auto'>
+          <div className='flex items-center justify-between px-4 py-2 text-white'>
+            <p className='text-sm'>Free shipping on orders over BDT.1000</p>
+            <nav>
+              <ul className='flex items-center space-x-4 text-sm'>
+                <li><a href="/blog" className='text-white'>Blog</a></li>
+                <li><a href="/" className='text-white'>Order Tracking</a></li>
+                <li><a href="/" className='text-white'>Contact Us</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
