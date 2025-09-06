@@ -299,7 +299,7 @@ const Header: React.FC = () => {
         cartItems={cartItems}
         onUpdateQuantity={handleUpdateCartQuantity}
         onRemoveItem={handleRemoveFromCart}
-        onCheckout={handleCheckout}
+        // onCheckout={handleCheckout}
       />
     </header>
   );

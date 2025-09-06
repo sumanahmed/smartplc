@@ -11,10 +11,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-100 ">
+      <div className="bg-gray-100">
         {children}
-      </body>
-    </html>
+      </div>
   );
 }
