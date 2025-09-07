@@ -3,12 +3,12 @@
 import React, { useState } from 'react'
 import { User, MapPin, CreditCard, Package, Heart, Settings, Edit2, Save, X, Eye, Link } from 'lucide-react';
 import Image from 'next/image';
-import OrderDetails from '../../components/frontend/customer/OrderDetails';
-import Address from '../../components/frontend/customer/Address';
-import OrderHistory from '../../components/frontend/customer/OrderHistory';
-import PaymentMethods from '../../components/frontend/customer/PaymentMethods';
-import type { WishlistItem } from '../../components/frontend/customer/Wishlist';
-import Wishlist from '../../components/frontend/customer/Wishlist';
+import OrderDetails from '@/components/frontend/customer/OrderDetails';
+import Address from '@/components/frontend/customer/Address';
+import OrderHistory from '@/components/frontend/customer/OrderHistory';
+import PaymentMethods from '@/components/frontend/customer/PaymentMethods';
+import type { WishlistItem } from '@/components/frontend/customer/Wishlist';
+import Wishlist from '@/components/frontend/customer/Wishlist';
 
 // interface CustomerProfileProps {
 //     user: {
