@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import api from "@/lib/api";
+import { setAuthToken } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,11 +19,49 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     rememberMe: false
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    onClose();
+    try {
+        if (isLogin) {
+          // 🔹 Login API call
+          await api.get("/sanctum/csrf-cookie");
+          const res = await api.post("api/login", {
+            email: formData.email,
+            password: formData.password,
+          });
+
+          setAuthToken(res.data.token);
+          const userRole = res.data.user.role;
+          console.log("Login success:", res.data);
+          if (userRole === "admin") {
+            router.push("/admin");
+          } else if (userRole === "customer") {
+            router.push("/customer");
+          } else {
+            router.push("/"); // fallback
+          }
+        }
+        // else {
+        //   // 🔹 Register API call
+        //   const res = await api.post("/register", {
+        //     name: formData.email.split("@")[0],
+        //     email: formData.email,
+        //     password: formData.password,
+        //     password_confirmation: formData.confirmPassword,
+        //   });
+
+        //   setAuthToken(res.data.token);
+        //   console.log("Register success:", res.data);
+        //   router.push("/dashboard");
+        // }
+
+        onClose();
+      } catch (error: any) {
+      console.error("Auth error:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "Something went wrong!");
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +78,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     <div
       className="fixed inset-0 bg-black flex items-center justify-center"
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} // Fallback style
-      onClick={onClose}
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="flex justify-between items-center p-6 border-b">
