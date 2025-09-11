@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation';
 import { Search, ShoppingCart, Heart, User, ChevronDown } from 'lucide-react';
 import CartSidebar from './CartSidebar';
 import AuthModal from './AuthModal'; // Import AuthModal
+import { useAuthStore } from "@/store/authStore";
+import Swal from "sweetalert2";
+
 import Image from 'next/image';
 import logo from '../../../public/logo.png'
 
@@ -42,16 +45,17 @@ interface WishlistItem {
 }
 
 const Header: React.FC = () => {
-  const router = useRouter();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for AuthModal
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+const router = useRouter();
+const [isMenuOpen, setIsMenuOpen] = useState(false);
+const [isLoggedIn, setIsLoggedIn] = useState(true);
+const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for AuthModal
+const [searchQuery, setSearchQuery] = useState('');
+const [isCartOpen, setIsCartOpen] = useState(false);
+const [cartItems, setCartItems] = useState<CartItem[]>([]);
+const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+const { isAuthenticated, user, logout } = useAuthStore();
 
   const categories = [
     'Fashion', 'Electronics', 'Home & Garden', 'Sports', 'Books', 'Beauty', 'Automotive', 'Toys'
@@ -219,52 +223,66 @@ const Header: React.FC = () => {
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            <div className="relative" role="navigation">
-              {isLoggedIn ? (
-                <>
-                  <button
-                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors focus:outline-none"
-                    aria-label="Toggle user menu"
-                    aria-expanded={isUserMenuOpen}
-                  >
-                    <User className="h-5 w-5" />
-                    <span className="hidden sm:inline text-sm">Account</span>
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
-                  {isUserMenuOpen && (
-                    <div className="user-menu absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                      <button
-                        onClick={() => {
-                          showCustomerProfile();
-                        }}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors"
-                      >
-                        My Profile
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsUserMenuOpen(false);
-                          setIsLoggedIn(false);
-                        }}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
-                      >
-                        Sign Out
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : (
+          <div className="flex items-center space-x-4">
+          <div className="relative" role="navigation">
+            {isAuthenticated ? (   // ✅ use Zustand state instead of isLoggedIn
+              <>
                 <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors focus:outline-none"
-                  onClick={() => setIsAuthModalOpen(true)} // Open AuthModal
-                  aria-label="Login"
+                  aria-label="Toggle user menu"
+                  aria-expanded={isUserMenuOpen}
                 >
                   <User className="h-5 w-5" />
-                  <span className="hidden sm:inline text-sm">Login</span>
+                  <span className="hidden sm:inline text-sm">Account</span>
+                  <ChevronDown className="h-4 w-4" />
                 </button>
-              )}
-            </div>
+                {isUserMenuOpen && (
+                  <div className="user-menu absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                    <button
+                      onClick={() => {
+                        showCustomerProfile();
+                        setIsUserMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors"
+                    >
+                      My Profile
+                    </button>
+                    <button
+                      onClick={() => {
+                        Swal.fire({
+                          title: 'Success!',
+                          text: 'You are successfully logged out',
+                          icon: 'success',
+                          confirmButtonText: 'OK',
+                          timer: 2000,
+                          timerProgressBar: true,
+                          willClose: () => {
+                            logout();          // clear auth
+                            router.push('/');  // redirect home
+                          },
+                        });
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <button
+                className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors focus:outline-none"
+                onClick={() => setIsAuthModalOpen(true)} // Open AuthModal
+                aria-label="Login"
+              >
+                <User className="h-5 w-5" />
+                <span className="hidden sm:inline text-sm">Login</span>
+              </button>
+            )}
+          </div>
+        </div>
+
             
             <button className="relative text-gray-700 hover:text-gray-900 transition-colors">
               <Heart className="h-5 w-5" />

@@ -1,18 +1,13 @@
 import axios from "axios";
-
-//const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+import { useAuthStore } from "@/store/authStore";
 
 const api = axios.create({
-  baseURL: API_BASE, 
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // .env.local 
   withCredentials: true,
 });
 
-// const res = await api.get("/api/csrf-token");
-  // const csrftoken = res.data.csrf_token;
-  // api.defaults.headers.common["X-CSRF-TOKEN"] = csrftoken;
-  api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+api.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
