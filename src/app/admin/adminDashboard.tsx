@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import Swal from "sweetalert2";
 
 import { 
   LayoutDashboard, 
@@ -11,7 +12,8 @@ import {
   Table, 
   Menu,
   X,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -19,10 +21,13 @@ interface SidebarItem {
   label: string;
   icon: React.ComponentType<any>;
   component: React.ComponentType;
+  action?: () => void;       
 }
 
 import FormsPage from './components/FormsPage';
 import DataTablePage from './components/DataTablePage';
+
+
 
 const DashboardPage = () => {
   return (
@@ -54,79 +59,83 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // ✅ hooks inside component body
+  const { logout } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    Swal.fire({
+      icon: "success",
+      title: "You are successfully logged out!",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    router.push("/");
+  };
+
   const sidebarItems: SidebarItem[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, component: DashboardPage },
-    { id: 'forms', label: 'Forms', icon: FileText, component: FormsPage },
-    { id: 'data-table', label: 'Data Table', icon: Table, component: DataTablePage },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, component: DashboardPage },
+    { id: "forms", label: "Forms", icon: FileText, component: FormsPage },
+    { id: "data-table", label: "Data Table", icon: Table, component: DataTablePage },
+    { id: "logout", label: "Logout", icon: LogOut, action: handleLogout }, // ✅ logout item
   ];
 
-  const ActiveComponent = sidebarItems.find(item => item.id === activeTab)?.component || DashboardPage;
+  const ActiveComponent =
+    sidebarItems.find((item) => item.id === activeTab)?.component || DashboardPage;
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="bg-white p-2 rounded-md shadow-md"
-        >
-          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      <div className="flex">
+    return (
+      <div className="min-h-screen bg-gray-100">
         {/* Sidebar */}
-        <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-          fixed inset-y-0 left-0 z-40 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0`}>
+        <div
+          className={`${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } fixed inset-y-0 left-0 z-40 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0`}
+        >
           <div className="flex items-center justify-center h-16 bg-blue-600 text-white">
             <h1 className="text-xl font-bold">Admin Panel</h1>
           </div>
-          
+  
           <nav className="mt-8">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => {
+                    if (item.action) {
+                      item.action(); // 👈 handle logout
+                    } else {
+                      setActiveTab(item.id);
+                    }
+                  }}
                   className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-                    activeTab === item.id ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' : 'text-gray-700'
-                  }`}
+                    activeTab === item.id && !item.action
+                      ? "bg-blue-50 text-blue-600 border-r-4 border-blue-600"
+                      : "text-gray-700"
+                  } ${item.id === "logout" ? "text-red-600 hover:bg-red-50" : ""}`}
                 >
                   <Icon size={20} className="mr-3" />
                   <span className="font-medium">{item.label}</span>
-                  {activeTab === item.id && <ChevronRight size={16} className="ml-auto" />}
+                  {activeTab === item.id && !item.action && (
+                    <ChevronRight size={16} className="ml-auto" />
+                  )}
                 </button>
               );
             })}
           </nav>
         </div>
-
-        {/* Main content */}
-        <div className="flex-1 w-[calc(100%-16rem)] ml-64 h-screen overflow-y-auto">
-          <div className="bg-white shadow-sm">
-            <div className="px-6 py-4">
-              <h2 className="text-2xl font-semibold text-gray-800">
-                {sidebarItems.find(item => item.id === activeTab)?.label || 'Dashboard'}
-              </h2>
-            </div>
-          </div>
-          
-          <main className="p-0">
-            <ActiveComponent />
+  
+        {/* Main Content */}
+        <div className="flex-1 ml-64 h-screen overflow-y-auto">
+          <main className="p-6">
+            {!sidebarItems.find((i) => i.id === activeTab)?.action && (
+              <ActiveComponent />
+            )}
           </main>
         </div>
       </div>
-
-      {/* Overlay for mobile */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-gray-800/60 bg-opacity-50 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-    </div>
-  );
-};
-
-export default AdminDashboard;
+    );
+  };
+  
+  export default AdminDashboard;

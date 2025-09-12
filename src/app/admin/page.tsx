@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
-import AdminDashboard from "./AdminDashboard";
+import AdminDashboard from "./adminDashboard";
 
 const AdminPage = () => {
   const router = useRouter();

@@ -6,6 +6,7 @@ import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import Swal from "sweetalert2";
+import RegisterModal from "./RegisterModal";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   const router = useRouter();
   const loginStore = useAuthStore((state) => state.login);
+  const [showRegister, setShowRegister] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,13 +48,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         });
 
         // Zustand 
-        loginStore(res.data.user, res.data.token);
+       // loginStore(res.data.user, res.data.token);
+        loginStore(res.data.token, res.data.user);
 
         //console.log("Login success:", res.data);
 
         if (role === "admin") {
           router.push("/admin");
-        } else if (res.data.user.role === "customer") {
+        } else if (role === "customer") {
           router.push("/customer");
         } else {
           router.push("/");
@@ -76,6 +80,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
+    <>
     <div
       className="fixed inset-0 bg-black flex items-center justify-center"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
@@ -153,11 +158,30 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             type="submit"
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
           >
-            {isLogin ? "Sign In" : "Create Account"}
+            {/* {isLogin ? "Sign In" : "Create Account"} */}
+            Sign In
+            
           </button>
+          <p className="text-center text-sm text-gray-600">
+            {/* {isLogin ? "Don't have an account?" : "Already have an account?"} */}
+            Don't have an account? 
+            <button
+              type="button"
+              onClick={() => setShowRegister(true)}
+              className="text-blue-600 hover:text-blue-800 font-medium"
+              >
+               Sign Up
+            </button>
+          </p>
         </form>
       </div>
     </div>
+      <RegisterModal
+        isOpen={showRegister}
+        onClose={() => setShowRegister(false)}
+        onSuccess={() => setShowRegister(false)}
+      />
+    </>
   );
 };
 
