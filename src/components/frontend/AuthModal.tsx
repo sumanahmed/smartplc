@@ -32,6 +32,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     try {
       if (isLogin) {
+        await api.get("/sanctum/csrf-cookie");
         const res = await api.post("api/login", {
           email: formData.email,
           password: formData.password,
