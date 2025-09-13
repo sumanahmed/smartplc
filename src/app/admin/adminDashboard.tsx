@@ -10,6 +10,10 @@ import {
   LayoutDashboard, 
   FileText, 
   Table, 
+  FileUser,
+  ListOrdered,
+  Aperture,
+  ChevronsUp,
   Menu,
   X,
   ChevronRight,
@@ -26,6 +30,11 @@ interface SidebarItem {
 
 import FormsPage from './components/FormsPage';
 import DataTablePage from './components/DataTablePage';
+import CategoryPage from './components/CategoryPage';
+import BrandPage from './components/BrandPage';
+import ProductPage from './components/ProductPage';
+import CustomerPage from './components/CustomerPage';
+import OrderDetailsPage from './components/OrderDetailsPage';
 
 
 
@@ -76,9 +85,14 @@ const AdminDashboard = () => {
 
   const sidebarItems: SidebarItem[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, component: DashboardPage },
+    { id: "category-table", label: "Category", icon: Aperture, component: CategoryPage },
+    { id: "brand-table", label: "Brand", icon: ChevronsUp, component: BrandPage },
+    { id: "product-table", label: "Product", icon: Table, component: ProductPage },
+    { id: "customer-table", label: "Customer", icon: FileUser, component: CustomerPage },
+    { id: "order-details-table", label: "Order Details", icon: ListOrdered, component: OrderDetailsPage },
     { id: "forms", label: "Forms", icon: FileText, component: FormsPage },
     { id: "data-table", label: "Data Table", icon: Table, component: DataTablePage },
-    { id: "logout", label: "Logout", icon: LogOut, action: handleLogout }, // ✅ logout item
+    { id: "logout", label: "Logout", icon: LogOut, action: handleLogout},
   ];
 
   const ActiveComponent =
