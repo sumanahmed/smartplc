@@ -9,6 +9,7 @@ import OrderHistory from '@/components/frontend/customer/OrderHistory';
 import PaymentMethods from '@/components/frontend/customer/PaymentMethods';
 import type { WishlistItem } from '@/components/frontend/customer/Wishlist';
 import Wishlist from '@/components/frontend/customer/Wishlist';
+import { useAuthStore } from "@/store/authStore";
 
 // interface CustomerProfileProps {
 //     user: {
@@ -47,14 +48,15 @@ import Wishlist from '@/components/frontend/customer/Wishlist';
 // }
 
 const CustomerPage = () => {
-    const [user, setUserDetails] = useState({
-        firstName : 'Rahat',
-        lastName: 'Khan',
-        email: 'rahat@gmail.com',
-        phone: '01290333333',
-        avatar: '',
-        joinDate: 'January 2024'
-    })
+    const { user } = useAuthStore();
+    // const [user, setUserDetails] = useState({
+    //     firstName : 'Rahat',
+    //     lastName: 'Khan',
+    //     email: 'rahat@gmail.com',
+    //     phone: '01290333333',
+    //     avatar: '',
+    //     joinDate: 'January 2024'
+    // })
     const [isEditing, setIsEditing] = useState(false);
     const [editingAddress, setEditingAddress] = useState<string | null>(null);
     const [showAddAddress, setShowAddAddress] = useState(false);
@@ -69,8 +71,8 @@ const CustomerPage = () => {
         isDefault: false
     });
     const [profileData, setProfileData] = useState({
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.first_name,
+        lastName: user.last_name,
         email: user.email,
         phone: user.phone
     });
