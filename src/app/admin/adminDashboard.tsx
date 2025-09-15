@@ -31,7 +31,7 @@ interface SidebarItem {
 import FormsPage from './components/FormsPage';
 import DataTablePage from './components/DataTablePage';
 import CategoryPage from './components/Category/CategoryListPage';
-import BrandPage from './components/BrandPage';
+import BrandPage from './components/Brand/BrandListPage';
 import ProductPage from './components/ProductPage';
 import CustomerPage from './components/CustomerPage';
 import OrderDetailsPage from './components/OrderDetailsPage';
