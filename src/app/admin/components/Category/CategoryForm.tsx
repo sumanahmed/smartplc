@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export type CategoryStatus = "active" | "inactive";
 
@@ -73,13 +74,16 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initial = null, onCancel, o
       slug: slug.trim() || slugify(name),
       status,
     };
-
     try {
       setSaving(true);
-      await onSave(payload);
+      const result = await onSave(payload);
+      if (result) {
+        toast.success("Saved successfully");
+      }
+      
     } catch (err) {
       const message = (err as any)?.response?.data?.message ?? (err as Error).message ?? "Save failed";
-      alert(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }

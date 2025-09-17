@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 // import { GeistSans, GeistMono } from 'geist/font';
 import FrontendLayout from '@/components/frontend/FrontendLayout';
 import './globals.css';
+import ToastProvider from "./common/ToastProvider";
 
 const OG_URL = 'https://smartplcbd.com';
 
@@ -36,6 +37,7 @@ export default function RootLayout({
         <FrontendLayout>
           {children}
         </FrontendLayout>
+        <ToastProvider />
       </body>
     </html>
   );

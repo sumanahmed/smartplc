@@ -10,6 +10,8 @@ import {
   deleteCategory,
 } from "@/lib/categoriesApi";
 
+import toast from "react-hot-toast";
+
 export default function CategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -41,7 +43,6 @@ export default function CategoriesPage() {
       setItems(list);
     } catch (err) {
       console.error(err);
-      alert("Could not load categories");
     } finally {
       setLoading(false);
     }
@@ -63,17 +64,17 @@ export default function CategoriesPage() {
       if (editing) {
         const updated = await updateCategory(editing.id, payload);
         setItems((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-        alert("Category updated");
+        toast.success("Category updated");
       } else {
         const created = await createCategory(payload);
         setItems((prev) => [created, ...prev]);
-        alert("Category created");
+        toast.success("Category created");
       }
       setOpen(false);
     } catch (err) {
       console.error(err);
       const msg = (err as any)?.response?.data?.message ?? "Save failed";
-      alert(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
