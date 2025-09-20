@@ -36,29 +36,62 @@ export interface PaginatedResponse<T> {
  * Fetch categories (supports search q and page).
  * Returns the full axios data (paginated). Caller may read res.data or res.data.data
  */
+// export const fetchCategories = async (
+//   q = "",
+//   page = 1,
+//   itemsPerPage = 10
+// ): Promise<PaginatedResponse<Category>> => {
+//   const res = await api.get("/api/categories", {
+//     params: { q, page, pagination: true, itemsPerPage },
+//   });
+
+//   // Laravel's paginator returns object with `data` and pagination fields
+//   // We normalize to PaginatedResponse<T>
+//   const payload = res.data as any;
+//   if (Array.isArray(payload)) {
+//     return { data: payload };
+//   }
+  
+
+//   // Some apps wrap pagination under `data` already (Laravel default)
+//   if (payload.data && Array.isArray(payload.data)) {
+//     return payload as PaginatedResponse<Category>;
+//   }
+
+//   // Fallback
+//   return { data: [] };
+// };
+
 export const fetchCategories = async (
   q = "",
-  page = 1
+  page = 1,
+  itemsPerPage = 10
 ): Promise<PaginatedResponse<Category>> => {
   const res = await api.get("/api/categories", {
-    params: { q, page },
+    params: { q, page, paginate: true, itemsPerPage },
   });
 
-  // Laravel's paginator returns object with `data` and pagination fields
-  // We normalize to PaginatedResponse<T>
-  const payload = res.data as any;
-  if (Array.isArray(payload)) {
-    return { data: payload };
+  const payload = res.data.data; // <-- this is the Laravel paginator result
+
+  if (Array.isArray(payload.data)) {
+    // If paginated
+    return {
+      data: payload.data,
+      meta: {
+        current_page: payload.current_page,
+        last_page: payload.last_page,
+        per_page: payload.per_page,
+        total: payload.total,
+        from: payload.from,
+        to: payload.to,
+      },
+    };
   }
 
-  // Some apps wrap pagination under `data` already (Laravel default)
-  if (payload.data && Array.isArray(payload.data)) {
-    return payload as PaginatedResponse<Category>;
-  }
-
-  // Fallback
-  return { data: [] };
+  // fallback for array (non-paginated)
+  return { data: Array.isArray(payload) ? payload : [] };
 };
+
 
 export interface CreatePayload {
   name: string;

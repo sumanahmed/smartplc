@@ -23,6 +23,8 @@ export default function CategoriesPage() {
   const [editing, setEditing] = useState<Category | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);  
 
   useEffect(() => {
     // initial load
@@ -32,24 +34,31 @@ export default function CategoriesPage() {
   // debounced search
   useEffect(() => {
     const t = setTimeout(() => {
-      loadData(search);
+      loadData(search, 1);
     }, 350);
     return () => clearTimeout(t);
   }, [search]);
-
-  async function loadData(query = "") {
+  
+  async function loadData(query = "", page = 1) {
     setLoading(true);
     try {
-      const res = await fetchCategories(query);
-      // Laravel returns paginator with data property
-      const list: Category[] = Array.isArray(res) ? res : res.data ?? [];
-      setItems(list);
+      const res = await fetchCategories(query, page, 10); // 10 items per page
+      setItems(res.data);
+  
+      if (res.meta) {
+        setCurrentPage(res.meta.current_page);
+        setLastPage(res.meta.last_page);
+      } else {
+        setCurrentPage(1);
+        setLastPage(1);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
   }
+  
 
   function openAdd() {
     setEditing(null);
@@ -59,6 +68,11 @@ export default function CategoriesPage() {
   function openEdit(item: Category) {
     setEditing(item);
     setOpen(true);
+  }
+
+  function goToPage(page: number) {
+    if (page < 1 || page > lastPage) return;
+    loadData(search, page);
   }
 
   async function handleSave(payload: { name: string; slug: string;}) {
@@ -225,6 +239,29 @@ async function handleToggleStatus(item: Category) {
           </div>
         </div>
       </div>
+
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <span>
+          Page {currentPage} of {lastPage}
+        </span>
+
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === lastPage}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
 
       <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Category" : "Add Category"}>
         <CategoryForm
