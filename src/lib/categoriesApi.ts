@@ -1,7 +1,7 @@
 // src/lib/categoriesApi.ts
 import api from "@/lib/api";
 
-export type CategoryStatus = "active" | "inactive";
+export type CategoryStatus = 1 | 2; // 1 = active, 2 = inactive
 
 export interface Category {
   id: number;
@@ -68,12 +68,12 @@ export interface CreatePayload {
 
 export const createCategory = async (payload: CreatePayload): Promise<Category> => {
   const res = await api.post("/api/categories", payload);
-  return res.data as Category;
+  return res.data.data;
 };
 
 export const getCategory = async (id: number): Promise<Category> => {
   const res = await api.get(`/api/categories/${id}`);
-  return res.data as Category;
+  return res.data.data;
 };
 
 export const updateCategory = async (
@@ -81,10 +81,15 @@ export const updateCategory = async (
   payload: CreatePayload
 ): Promise<Category> => {
   const res = await api.put(`/api/categories/${id}`, payload);
-  return res.data as Category;
+  return res.data.data;
 };
 
 export const deleteCategory = async (id: number): Promise<{ message?: string }> => {
   const res = await api.delete(`/api/categories/${id}`);
   return res.data;
+};
+
+export const toggleCategoryStatus = async (id: number): Promise<Category> => {
+  const res = await api.delete(`/api/categories/${id}/toggle-status`);
+  return res.data.data; 
 };
