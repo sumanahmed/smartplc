@@ -1,7 +1,7 @@
-// src/lib/brandsApi.ts
+// src/lib/categoriesApi.ts
 import api from "@/lib/api";
 
-export type BrandStatus = "active" | "inactive";
+export type BrandStatus = 1 | 2; // 1 = active, 2 = inactive
 
 export interface Brand {
   id: number;
@@ -33,32 +33,40 @@ export interface PaginatedResponse<T> {
 }
 
 /**
- * Fetch brands (supports search q and page).
+ * Fetch categories (supports search q and page).
  * Returns the full axios data (paginated). Caller may read res.data or res.data.data
  */
-export const fetchbrands = async (
+
+export const fetchBrands = async (
   q = "",
-  page = 1
+  page = 1,
+  itemsPerPage = 10
 ): Promise<PaginatedResponse<Brand>> => {
   const res = await api.get("/api/brands", {
-    params: { q, page },
+    params: { q, page, paginate: true, itemsPerPage },
   });
 
-  // Laravel's paginator returns object with `data` and pagination fields
-  // We normalize to PaginatedResponse<T>
-  const payload = res.data as any;
-  if (Array.isArray(payload)) {
-    return { data: payload };
+  const payload = res.data.data; // <-- this is the Laravel paginator result
+
+  if (Array.isArray(payload.data)) {
+    // If paginated
+    return {
+      data: payload.data,
+      meta: {
+        current_page: payload.current_page,
+        last_page: payload.last_page,
+        per_page: payload.per_page,
+        total: payload.total,
+        from: payload.from,
+        to: payload.to,
+      },
+    };
   }
 
-  // Some apps wrap pagination under `data` already (Laravel default)
-  if (payload.data && Array.isArray(payload.data)) {
-    return payload as PaginatedResponse<Brand>;
-  }
-
-  // Fallback
-  return { data: [] };
+  // fallback for array (non-paginated)
+  return { data: Array.isArray(payload) ? payload : [] };
 };
+
 
 export interface CreatePayload {
   name: string;
@@ -67,24 +75,29 @@ export interface CreatePayload {
 }
 
 export const createBrand = async (payload: CreatePayload): Promise<Brand> => {
-  const res = await api.post("/api/brands", payload);
-  return res.data as Brand;
+  const res = await api.post("/api/brands-create", payload);
+  return res.data.data;
 };
 
 export const getBrand = async (id: number): Promise<Brand> => {
   const res = await api.get(`/api/brands/${id}`);
-  return res.data as Brand;
+  return res.data.data;
 };
 
 export const updateBrand = async (
   id: number,
   payload: CreatePayload
 ): Promise<Brand> => {
-  const res = await api.put(`/api/brands/${id}`, payload);
-  return res.data as Brand;
+  const res = await api.put(`/api/brands-update/${id}`, payload);
+  return res.data.data;
 };
 
 export const deleteBrand = async (id: number): Promise<{ message?: string }> => {
   const res = await api.delete(`/api/brands/${id}`);
   return res.data;
+};
+
+export const toggleBrandStatus = async (id: number): Promise<Brand> => {
+  const res = await api.delete(`/api/brands/${id}/toggle-status`);
+  return res.data.data; 
 };

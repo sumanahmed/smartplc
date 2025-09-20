@@ -3,12 +3,17 @@ import React, { useEffect, useRef, useState } from "react";
 import { Plus, Eye, Edit, Trash2 } from "lucide-react";
 import Modal from "../Modal";
 import BrandForm, { Brand } from "./BrandForm";
+import Swal from "sweetalert2";
+
 import {
-  fetchbrands,
+  fetchBrands,
   createBrand,
   updateBrand,
   deleteBrand,
+  toggleBrandStatus, 
 } from "@/lib/brandApi";
+
+import toast from "react-hot-toast";
 
 export default function CategoriesPage() {
   const [items, setItems] = useState<Brand[]>([]);
@@ -18,6 +23,8 @@ export default function CategoriesPage() {
   const [editing, setEditing] = useState<Brand | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);  
 
   useEffect(() => {
     // initial load
@@ -27,25 +34,31 @@ export default function CategoriesPage() {
   // debounced search
   useEffect(() => {
     const t = setTimeout(() => {
-      loadData(search);
+      loadData(search, 1);
     }, 350);
     return () => clearTimeout(t);
   }, [search]);
-
-  async function loadData(query = "") {
+  
+  async function loadData(query = "", page = 1) {
     setLoading(true);
     try {
-      const res = await fetchbrands(query);
-      // Laravel returns paginator with data property
-      const list: Brand[] = Array.isArray(res) ? res : res.data ?? [];
-      setItems(list);
+      const res = await fetchBrands(query, page, 10); // 10 items per page
+      setItems(res.data);
+  
+      if (res.meta) {
+        setCurrentPage(res.meta.current_page);
+        setLastPage(res.meta.last_page);
+      } else {
+        setCurrentPage(1);
+        setLastPage(1);
+      }
     } catch (err) {
       console.error(err);
-      alert("Could not load categories");
     } finally {
       setLoading(false);
     }
   }
+  
 
   function openAdd() {
     setEditing(null);
@@ -57,44 +70,79 @@ export default function CategoriesPage() {
     setOpen(true);
   }
 
-  async function handleSave(payload: { name: string; slug: string; status: Brand["status"] }) {
+  function goToPage(page: number) {
+    if (page < 1 || page > lastPage) return;
+    loadData(search, page);
+  }
+
+  async function handleSave(payload: { name: string; slug: string;}) {
     setSubmitting(true);
     try {
       if (editing) {
         const updated = await updateBrand(editing.id, payload);
         setItems((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-        alert("Brand updated");
+        toast.success("Brand updated successfully");
       } else {
         const created = await createBrand(payload);
-        setItems((prev) => [created, ...prev]);
-        alert("Brand created");
+        const BrandWithStatus = {
+          ...created,
+          status: created.status ?? 1,
+        };
+        setItems((prev) => [BrandWithStatus, ...prev]);
+        toast.success("Brand created successfully");
       }
       setOpen(false);
     } catch (err) {
       console.error(err);
       const msg = (err as any)?.response?.data?.message ?? "Save failed";
-      alert(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   }
+  
+
 
   async function handleDelete(item: Brand) {
-    if (!confirm(`Delete "${item.name}"?`)) return;
-    try {
-      await deleteBrand(item.id);
-      setItems((prev) => prev.filter((i) => i.id !== item.id));
-      alert("Deleted");
-    } catch (err) {
-      console.error(err);
-      alert("Delete failed");
-    }
-  }
+      const result = await Swal.fire({
+          title: "Are you sure?",
+          text: `Do you really want to delete "${item.name}"? This action cannot be undone.`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "Cancel",
+      });
 
-  const getStatusBadge = (status: string) => {
-    const style = status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800";
-    return <span className={`px-2 py-1 text-xs font-semibold rounded-full ${style}`}>{status}</span>;
-  };
+      if (result.isConfirmed) {
+        try {
+          await deleteBrand(item.id);
+          setItems((prev) => prev.filter((i) => i.id !== item.id)); // remove from UI
+          toast.success("Brand deleted successfully");
+        } catch (err) {
+          console.error(err);
+          toast.error("Delete failed");
+        }
+      }
+}
+
+async function handleToggleStatus(item: Brand) {
+  try {
+    const updatedToggleBrand = await toggleBrandStatus(item.id);
+    
+    setItems((prev: Brand[]) =>
+      prev.map((cat) => (cat.id === item.id ? updatedToggleBrand : cat))
+    );
+
+    toast.success("Status updated Sucessfully!");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update status");
+  }
+}
+
+
 
   return (
     <div className="p-6">
@@ -153,18 +201,32 @@ export default function CategoriesPage() {
                   </tr>
                 ) : items.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-6 text-center">No categories found</td>
+                    <td colSpan={5} className="p-6 text-center">No brand found</td>
                   </tr>
                 ) : (
                   items.map((item, idx) => (
                     <tr key={item.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{idx + 1}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.slug}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(item.status)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                      <label className="inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={item.status === 1}
+                          onChange={() => handleToggleStatus(item)}
+                          className="sr-only peer"
+                        />
+                        <div className="relative w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-full"></div>
+                        <span className="ms-3 text-sm font-medium text-gray-900">
+                          {/* {item.status === 1 ? "Active" : "Inactive"} */}
+                        </span>
+                      </label>
+                    </td>
+
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button title="View" className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"><Eye size={16} /></button>
+                          {/* <button title="View" className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"><Eye size={16} /></button> */}
                           <button onClick={() => openEdit(item)} title="Edit" className="text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-50"><Edit size={16} /></button>
                           <button onClick={() => handleDelete(item)} title="Delete" className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"><Trash2 size={16} /></button>
                         </div>
@@ -177,6 +239,29 @@ export default function CategoriesPage() {
           </div>
         </div>
       </div>
+
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <span>
+          Page {currentPage} of {lastPage}
+        </span>
+
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === lastPage}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
 
       <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Brand" : "Add Brand"}>
         <BrandForm
