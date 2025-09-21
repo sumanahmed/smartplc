@@ -12,8 +12,8 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, title, children }) => {
   if (!open) return null;
 
   return (
-       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-opacity-50">
-      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-opacity-50">
+      <div className="relative bg-white rounded-lg shadow-xl w-full max-w-xl overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
           <h2 className="text-xl font-semibold text-white">{title}</h2>
         </div>
