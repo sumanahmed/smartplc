@@ -101,3 +101,8 @@ export const toggleCategoryStatus = async (id: number): Promise<Category> => {
   const res = await api.delete(`/api/categories/${id}/toggle-status`);
   return res.data.data; 
 };
+
+export const getAllCategory = async (): Promise<Category[]> => {
+  const res = await api.get("/api/all-category");
+  return res.data.data;
+};

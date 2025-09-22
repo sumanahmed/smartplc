@@ -101,3 +101,8 @@ export const toggleBrandStatus = async (id: number): Promise<Brand> => {
   const res = await api.delete(`/api/brands/${id}/toggle-status`);
   return res.data.data; 
 };
+
+export const getAllBrand = async (): Promise<Brand> => {
+  const res = await api.get(`/api/all-brand`);
+  return res.data.data;
+};

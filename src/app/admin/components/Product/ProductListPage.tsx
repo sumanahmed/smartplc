@@ -13,6 +13,12 @@ import {
   toggleProductStatus, 
 } from "@/lib/productsApi";
 
+import {
+  getAllCategory, Category  
+} from "@/lib/categoriesApi";
+
+import { getAllBrand, Brand } from "@/lib/brandApi";
+
 import toast from "react-hot-toast";
 
 export default function ProductsPage() {
@@ -25,21 +31,27 @@ export default function ProductsPage() {
   const searchRef = useRef<HTMLInputElement | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);  
+  const [categoryList, setCategories] = useState<Category[]>([]);
+  const [brandList, setBrands] = useState<Brand[]>([]);
 
 
-  const categoryList = [
-    { id: 4, name: "Electronics" },
-    { id: 5, name: "Clothing" },
-  ];
-
-  const brandList = [
-    { id: 1, name: "Samsung" },
-    { id: 2, name: "Nike" },
-  ];
+  async function loadLookups() {
+    try {
+      const [cats, brs] = await Promise.all([
+        getAllCategory(),
+        getAllBrand(),
+      ]);
+      setCategories(cats);
+      setBrands(brs); 
+    } catch (err) {
+      console.error("Failed to load categories/brands", err);
+    }
+  }
 
   useEffect(() => {
     // initial load
     loadData("");
+    loadLookups();
   }, []);
 
   // debounced search
