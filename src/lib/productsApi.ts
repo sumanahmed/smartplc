@@ -79,8 +79,15 @@ export interface CreatePayload {
   description?: number;
 }
 
-export const createProduct = async (payload: CreatePayload): Promise<Product> => {
-  const res = await api.post("/api/product-create", payload);
+// export const createProduct = async (payload: CreatePayload): Promise<Product> => {
+//   const res = await api.post("/api/product-create", payload);
+//   return res.data.data;
+// };
+
+export const createProduct = async (payload: FormData): Promise<Product> => {
+  const res = await api.post("/api/product-create", payload, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
   return res.data.data;
 };
 
@@ -89,11 +96,18 @@ export const getProduct = async (id: number): Promise<Product> => {
   return res.data.data;
 };
 
-export const updateProduct = async (
-  id: number,
-  payload: CreatePayload
-): Promise<Product> => {
-  const res = await api.put(`/api/product-update/${id}`, payload);
+// export const updateProduct = async (
+//   id: number,
+//   payload: CreatePayload
+// ): Promise<Product> => {
+//   const res = await api.put(`/api/product-update/${id}`, payload);
+//   return res.data.data;
+// };
+
+export const updateProduct = async (id: number, payload: FormData): Promise<Product> => {
+  const res = await api.put(`/api/product-update/${id}`, payload, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
   return res.data.data;
 };
 
