@@ -72,6 +72,11 @@ export interface CreatePayload {
   name: string;
   slug?: string;
   status?: ProductStatus;
+  category_id?: number;
+  brand_id?: number;
+  purchase_price: number;
+  stock: number;
+  description?: number;
 }
 
 export const createProduct = async (payload: CreatePayload): Promise<Product> => {

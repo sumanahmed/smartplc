@@ -21,6 +21,19 @@ import { getAllBrand, Brand } from "@/lib/brandApi";
 
 import toast from "react-hot-toast";
 
+export interface CreatePayload {
+  name: string;
+  slug?: string;
+  status?: number;
+  category_id: number;
+  brand_id: number;
+  purchase_price: number;
+  stock: number;
+  description?: string;
+  category?: Category; 
+  brand?: Brand;
+}
+
 export default function ProductsPage() {
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -98,7 +111,7 @@ export default function ProductsPage() {
     loadData(search, page);
   }
 
-  async function handleSave(payload: { name: string; slug: string;}) {
+  async function handleSave(payload: CreatePayload) {
     setSubmitting(true);
     try {
       if (editing) {
@@ -123,6 +136,7 @@ export default function ProductsPage() {
       setSubmitting(false);
     }
   }
+
   
 
 
@@ -181,7 +195,7 @@ async function handleToggleStatus(item: Product) {
               ref={searchRef}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name or slug..."
+              placeholder="Search by name"
               className="border rounded px-3 py-2 w-64"
             />
 
@@ -216,6 +230,9 @@ async function handleToggleStatus(item: Product) {
                      Purchase Price
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                     Stock
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -237,9 +254,10 @@ async function handleToggleStatus(item: Product) {
                     <tr key={item.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{idx + 1}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.category_id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.brand_id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.category?.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.brand?.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.purchase_price}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.stock}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                       <label className="inline-flex items-center cursor-pointer">
                         <input

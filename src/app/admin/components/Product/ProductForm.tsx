@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+export type ProductStatus = 1 | 2; // 1 = active, 2 = inactive
+
 interface Category {
   id: number;
   name: string;
@@ -8,6 +10,19 @@ interface Category {
 interface Brand {
   id: number;
   name: string;
+}
+
+export interface Product {
+  id?: number;
+  name: string;
+  slug: string;
+  category_id: number;
+  brand_id: number;
+  purchase_price: number;
+  stock: number;
+  description?: string;
+  image?: string;
+  status?: ProductStatus;
 }
 
 interface ProductFormProps {
@@ -34,6 +49,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     stock: initial?.stock || "",
     description: initial?.description || "",
   });
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
