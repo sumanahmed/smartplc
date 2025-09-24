@@ -91,24 +91,24 @@ export const createProduct = async (payload: FormData): Promise<Product> => {
   return res.data.data;
 };
 
+
 export const getProduct = async (id: number): Promise<Product> => {
   const res = await api.get(`/api/products/${id}`);
   return res.data.data;
 };
 
-// export const updateProduct = async (
-//   id: number,
-//   payload: CreatePayload
-// ): Promise<Product> => {
-//   const res = await api.put(`/api/product-update/${id}`, payload);
-//   return res.data.data;
-// };
-
-export const updateProduct = async (id: number, payload: FormData): Promise<Product> => {
-  const res = await api.put(`/api/product-update/${id}`, payload, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  });
-  return res.data.data;
+export const updateProduct = async (id: number, payload: FormData | object): Promise<Product> => {
+  if (payload instanceof FormData) {
+    // method spoof to ensure Laravel handles multipart properly
+    payload.append("_method", "PUT");
+    const res = await api.post(`/api/product-update/${id}`, payload, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data.data;
+  } else {
+    const res = await api.put(`/api/product-update/${id}`, payload);
+    return res.data.data;
+  }
 };
 
 export const deleteProduct = async (id: number): Promise<{ message?: string }> => {
