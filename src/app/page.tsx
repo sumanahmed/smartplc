@@ -1,8 +1,8 @@
 'use client'
-import CategorySection from "@/components/frontend/CategorySection";
+import { useEffect, useState } from 'react';
 import HeroCarousel from "@/components/frontend/HeroCarousel";
-import { categories, getProductsByCategory } from '@/data/products';
-import { useState } from 'react';
+import CategorySection from "@/components/frontend/CategorySection";
+import { fetchAllActiveCategories, fetchProductsByCategorySlug } from '../lib/homeApi';
 
 interface CartItem {
   id: number;
@@ -17,6 +17,29 @@ interface CartItem {
 export default function Home() {
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
   const [cartItems, setCartItems] = useState <CartItem[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [categoryProducts, setCategoryProducts] = useState<{ [key: string]: any[] }>({});
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const cats = await fetchAllActiveCategories();
+        setCategories(cats);
+
+        // fetch products for each category (limited for home)
+        const productData: { [key: string]: any[] } = {};
+        for (let cat of cats) {
+          const products = await fetchProductsByCategorySlug(cat.slug);
+          productData[cat.slug] = products.slice(0, 8); // just 8 product home e
+        }
+        setCategoryProducts(productData);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadData();
+  }, []);
+
   const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
     const existingItem = cartItems.find(item => 
       item.id === product.id && item.size === size && item.color === color
@@ -49,21 +72,20 @@ export default function Home() {
   };
 
   return (
-    <>
-      <div className="space-y-12">
-        <HeroCarousel />
-        <div className="max-w-7xl mx-auto px-4">
-          {categories.map(category => (
-            <CategorySection
-              key={category}
-              title={category}
-              products={getProductsByCategory(category)}
-              onAddToCart={handleAddToCart}
-              onAddToWishlist={handleAddToWishlist}
-            />
-          ))}
-        </div>
+    <div className="space-y-12">
+      <HeroCarousel />
+      <div className="max-w-7xl mx-auto px-4">
+        {categories.map(category => (
+          <CategorySection
+            key={category.id}
+            title={category.name}
+            slug={category.slug}
+            products={categoryProducts[category.slug] || []}
+            onAddToCart={handleAddToCart}
+            onAddToWishlist={handleAddToWishlist}
+          />
+        ))}
       </div>
-    </>
+    </div>
   );
 }
