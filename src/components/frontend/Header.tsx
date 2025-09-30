@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, ShoppingCart, Heart, User, ChevronDown } from 'lucide-react';
 import CartSidebar from './CartSidebar';
@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 
 import Image from 'next/image';
 import logo from '../../../public/logo.png'
+import { fetchAllActiveCategories } from "@/lib/homeApi";
 
 interface CartItem {
   id: number;
@@ -56,10 +57,19 @@ const [isCartOpen, setIsCartOpen] = useState(false);
 const [cartItems, setCartItems] = useState<CartItem[]>([]);
 const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
 const { isAuthenticated, user, logout } = useAuthStore();
+const [categories, setCategories] = useState<any[]>([]);
 
-  const categories = [
-    'Fashion', 'Electronics', 'Home & Garden', 'Sports', 'Books', 'Beauty', 'Automotive', 'Toys'
-  ];
+useEffect(() => {
+  const loadCategories = async () => {
+    try {
+      const res = await fetchAllActiveCategories();
+      setCategories(res); // backend response e `data: []` ase
+    } catch (error) {
+      console.error("Failed to load categories", error);
+    }
+  };
+  loadCategories();
+}, []);
 
   const onCartClick = () => {
     setIsCartOpen(true);
@@ -170,10 +180,7 @@ const { isAuthenticated, user, logout } = useAuthStore();
               <div className="relative">
                 <button
                   onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                  className="flex items-center px-4 h-10 border border-r-0 rounded-l-md bg-gray-50 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors text-gray-700"
-                  aria-label="Toggle category menu"
-                  aria-expanded={isCategoriesOpen}
-                  aria-haspopup="true"
+                  className="flex items-center px-4 h-10 border border-r-0 rounded-l-md bg-gray-50 hover:bg-gray-100"
                 >
                   <span className="text-sm font-medium">All Categories</span>
                   <ChevronDown className="ml-2 h-4 w-4" />
@@ -183,15 +190,15 @@ const { isAuthenticated, user, logout } = useAuthStore();
                   <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     {categories.map((category) => (
                       <button
-                        key={category}
+                        key={category.id}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                         onClick={() => {
                           setIsCategoriesOpen(false);
+                          router.push(`/category/${category.slug}`);
                           // Add category selection logic here if needed
                         }}
-                        aria-label={`Select ${category}`}
                       >
-                        {category}
+                        {category.name}
                       </button>
                     ))}
                   </div>
