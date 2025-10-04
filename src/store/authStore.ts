@@ -30,9 +30,11 @@ export const useAuthStore = create<AuthState>()(
     )
   );
 
-  window.addEventListener('storage', (event) => {
-    if (event.key === 'auth-storage' && event.newValue === null) {
-      // user logged out in another tab
-      window.location.href = '/';
-    }
-  });
+if (typeof window !== "undefined") {
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'auth-storage' && event.newValue === null) {
+        // user logged out in another tab
+        window.location.href = '/';
+      }
+    });
+}
