@@ -28,12 +28,13 @@ interface SidebarItem {
   action?: () => void;       
 }
 
-import FormsPage from './components/FormsPage';
-import DataTablePage from './components/DataTablePage';
+//import FormsPage from './components/FormsPage';
+//import DataTablePage from './components/DataTablePage';
 import CategoryPage from './components/Category/CategoryListPage';
 import BrandPage from './components/Brand/BrandListPage';
 import ProductPage from './components/Product/ProductListPage';
 import CustomerPage from './components/CustomerPage';
+import UserPage from './components/User/AllUserPage';
 import OrderDetailsPage from './components/OrderDetailsPage';
 
 
@@ -89,9 +90,10 @@ const AdminDashboard = () => {
     { id: "brand-table", label: "Brand", icon: ChevronsUp, component: BrandPage },
     { id: "product-table", label: "Product", icon: Table, component: ProductPage },
     { id: "customer-table", label: "Customer", icon: FileUser, component: CustomerPage },
+    { id: "user-table", label: "User", icon: FileUser, component: UserPage },
     { id: "order-details-table", label: "Order Details", icon: ListOrdered, component: OrderDetailsPage },
-    { id: "forms", label: "Forms", icon: FileText, component: FormsPage },
-    { id: "data-table", label: "Data Table", icon: Table, component: DataTablePage },
+    //{ id: "forms", label: "Forms", icon: FileText, component: FormsPage },
+    //{ id: "data-table", label: "Data Table", icon: Table, component: DataTablePage },
     { id: "logout", label: "Logout", icon: LogOut, action: handleLogout},
   ];
 
