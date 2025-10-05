@@ -75,7 +75,7 @@ export default function CategoriesPage() {
     loadData(search, page);
   }
 
-  async function handleSave(payload: { name: string; first_name: string; last_name: string; phone: string; email: string;}) {
+   async function handleSave(payload: any) {
     setSubmitting(true);
     try {
       if (editing) {
@@ -84,14 +84,13 @@ export default function CategoriesPage() {
         toast.success("User updated successfully");
       } else {
         const created = await createUser(payload);
-        setItems((prev) => [...created, ...prev]);
+        setItems((prev) => [created, ...prev]);
         toast.success("User created successfully");
       }
       setOpen(false);
     } catch (err) {
       console.error(err);
-      const msg = (err as any)?.response?.data?.message ?? "Save failed";
-      toast.error(msg);
+      toast.error("Save failed");
     } finally {
       setSubmitting(false);
     }

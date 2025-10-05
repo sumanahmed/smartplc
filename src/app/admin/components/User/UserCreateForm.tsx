@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
-//export type BrandStatus = 1 | 2; // 1 = active, 2 = inactive
+import React, { useState } from "react";
+import { X, Mail, Lock, Eye, EyeOff, User, Phone } from "lucide-react";
+import Swal from "sweetalert2";
 
 export interface User {
   id: number;
@@ -15,12 +15,14 @@ export interface User {
 }
 
 interface SavePayload {
-   name: string;
+  name: string;
   first_name: string;
   last_name: string;
   email: string;
   phone: number;
-  role: string;
+  role?: string;
+  password: string;
+  password_confirmation: string;
 }
 
 interface UserCreateFormProps {
@@ -29,72 +31,94 @@ interface UserCreateFormProps {
   onSave: (payload: SavePayload) => Promise<void> | void;
 }
 
+const UserCreateForm: React.FC<UserCreateFormProps> = ({
+  initial = null,
+  onCancel,
+  onSave,
+}) => {
+  const [formData, setFormData] = useState({
+    first_name: initial?.first_name ?? "",
+    last_name: initial?.last_name ?? "",
+    phone: initial?.phone?.toString() ?? "",
+    email: initial?.email ?? "",
+    password: "",
+    password_confirmation: "",
+  });
 
-const UserCreateForm: React.FC<UserCreateFormProps> = ({ initial = null, onCancel, onSave }) => {
-  const [name, setName] = useState(initial?.name ?? "");
-  const [first_name, setFirstName] = useState(initial?.first_name ?? "");
-  const [last_name, setLastName] = useState(initial?.last_name ?? "");
-  const [phone, setPhoneName] = useState(initial?.phone ?? "");
-  const [email, setEmailName] = useState(initial?.email ?? "");
-  // const [status, setStatus] = useState<BrandStatus>((initial?.status as BrandStatus) ?? "active");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [errors, setErrors] = useState<{name?: string, first_name?: string, last_name?: string, phone?: string, email?: string}>({});
 
-  const validateForm = () => {
-    const newErrors: {name?: string, first_name?: string, last_name?: string, phone?: string, email?: string} = {};
-    
-    if (!name.trim()) {
-        newErrors.name = "Name is required";
-      }
-      
-    if (!first_name.trim()) {
-        newErrors.first_name = "First Name is required";
-      }
-      
-    if (!last_name.trim()) {
-        newErrors.last_name = "Last Name is required";
-      }
-      
-    if (!phone.trim()) {
-        newErrors.phone = "Phone  is required";
-      }
-      
-    if (!email.trim()) {
-      newErrors.email = "Email  is required";
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  // ✅ handle input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ✅ simple form validation
+  const validateForm = () => {
+    if (!formData.first_name.trim()) {
+      Swal.fire("Error", "First name is required", "error");
+      return false;
+    }
+    if (!formData.last_name.trim()) {
+      Swal.fire("Error", "Last name is required", "error");
+      return false;
+    }
+    if (!formData.phone.trim()) {
+      Swal.fire("Error", "Phone number is required", "error");
+      return false;
+    }
+    if (!formData.email.trim()) {
+      Swal.fire("Error", "Email is required", "error");
+      return false;
+    }
+    if (!formData.password.trim()) {
+      Swal.fire("Error", "Password is required", "error");
+      return false;
+    }
+    if (formData.password.length < 6) {
+      Swal.fire("Error", "Password must be at least 6 characters", "error");
+      return false;
+    }
+    if (formData.password !== formData.password_confirmation) {
+      Swal.fire("Error", "Passwords do not match", "error");
+      return false;
+    }
+    return true;
+  };
+
+  // ✅ handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+
+    if (!validateForm()) return;
 
     const payload: SavePayload = {
-      name: name.trim(),
-      first_name: first_name.trim(),
-      last_name: last_name.trim(),
-      phone: phone.trim(),
-      email: email.trim(),
+      name: `${formData.first_name} ${formData.last_name}`,
+      first_name: formData.first_name.trim(),
+      last_name: formData.last_name.trim(),
+      phone: Number(formData.phone),
+      email: formData.email.trim(),
+      password: formData.password.trim(),
+      password_confirmation: formData.password_confirmation.trim(),
     };
+
     try {
       setSaving(true);
-      const result = await onSave(payload);
-      if (result) {
-        toast.success("Saved successfully");
-      }
-      
-    } catch (err) {
-      const message = (err as any)?.response?.data?.message ?? (err as Error).message ?? "Save failed";
-      toast.error(message);
+      await onSave(payload);
+      Swal.fire("Success", "User saved successfully!", "success");
+    } catch (err: any) {
+      Swal.fire(
+        "Error",
+        err?.response?.data?.message || "Failed to save user",
+        "error"
+      );
     } finally {
       setSaving(false);
     }
   };
+
   return (
     <div className="relative bg-white rounded-lg shadow-md p-6 max-w-md mx-auto">
       {/* Loader Overlay */}
@@ -126,103 +150,145 @@ const UserCreateForm: React.FC<UserCreateFormProps> = ({ initial = null, onCance
         </div>
       )}
 
-  
-      <form onSubmit={handleSubmit} className="space-y-5 relative z-0">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (errors.name) setErrors({ ...errors, name: undefined });
-            }}
-            disabled={saving}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.name ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="Enter name"
-          />
-          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-              </div>
-              
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            First Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            value={first_name}
-            onChange={(e) => {
-              setFirstName(e.target.value);
-              if (errors.first_name) setErrors({ ...errors, first_name: undefined });
-            }}
-            disabled={saving}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.first_name ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="Enter name"
-          />
-          {errors.first_name && <p className="mt-1 text-sm text-red-600">{errors.first_name}</p>}
+      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* First & Last Name */}
+        <div className="flex space-x-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              First Name
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                name="first_name"
+                value={formData.first_name}
+                onChange={handleInputChange}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md"
+                placeholder="First name"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Last Name
+            </label>
+            <div className="relative">
+              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleInputChange}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md"
+                placeholder="Last name"
+                required
+              />
+            </div>
+          </div>
         </div>
-              
+
+        {/* Phone */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Phone Number
           </label>
-          <input
-            value={last_name}
-            onChange={(e) => {
-              setLastName(e.target.value);
-              if (errors.last_name) setErrors({ ...errors, last_name: undefined });
-            }}
-            disabled={saving}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.last_name ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="Enter name"
-          />
-          {errors.last_name && <p className="mt-1 text-sm text-red-600">{errors.last_name}</p>}
+          <div className="relative">
+            <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md"
+              placeholder="Enter your phone number"
+              required
+            />
+          </div>
         </div>
-              
+
+        {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number<span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email Address
           </label>
-          <input
-            value={phone}
-            onChange={(e) => {
-              setPhoneName(e.target.value);
-              if (errors.phone) setErrors({ ...errors, phone: undefined });
-            }}
-            disabled={saving}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.phone ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="Enter name"
-          />
-          {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+          <div className="relative">
+            <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
         </div>
-              
+
+        {/* Password */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email<span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Password
           </label>
-          <input
-            value={email}
-            onChange={(e) => {
-              setEmailName(e.target.value);
-              if (errors.email) setErrors({ ...errors, email: undefined });
-            }}
-            disabled={saving}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="Enter name"
-          />
-          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
+              placeholder="Enter your password"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+            >
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          </div>
         </div>
-  
+
+        {/* Confirm Password */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Confirm Password
+          </label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="password_confirmation"
+              value={formData.password_confirmation}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-md"
+              placeholder="Confirm your password"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Buttons */}
         <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
           <button
             type="button"
@@ -243,7 +309,6 @@ const UserCreateForm: React.FC<UserCreateFormProps> = ({ initial = null, onCance
       </form>
     </div>
   );
-  
 };
 
 export default UserCreateForm;
