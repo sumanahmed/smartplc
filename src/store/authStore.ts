@@ -26,15 +26,16 @@ export const useAuthStore = create<AuthState>()(
         login: (token, user) => set({ isAuthenticated: true, token, user }),
         logout: () => set({ isAuthenticated: false, token: null, user: null }),
       }),
-      { name: 'auth-storage', getStorage: () => localStorage }
+      { name: 'auth-storage' }
+      // { name: 'auth-storage', getStorage: () => localStorage }
     )
   );
 
-if (typeof window !== "undefined") {
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'auth-storage' && event.newValue === null) {
-        // user logged out in another tab
-        window.location.href = '/';
-      }
-    });
-}
+// if (typeof window !== "undefined") {
+//     window.addEventListener('storage', (event) => {
+//       if (event.key === 'auth-storage' && event.newValue === null) {
+//         // user logged out in another tab
+//         window.location.href = '/';
+//       }
+//     });
+// }

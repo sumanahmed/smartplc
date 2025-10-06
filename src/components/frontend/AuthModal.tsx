@@ -8,6 +8,8 @@ import { useAuthStore } from "@/store/authStore";
 import Swal from "sweetalert2";
 import RegisterModal from "./RegisterModal";
 
+import toast from "react-hot-toast";
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -65,8 +67,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
       onClose();
     } catch (error: any) {
-      console.error("Auth error:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Something went wrong!");
+      // console.error("Auth error:", error.response?.data || error.message);
+      // alert(error.response?.data?.message || "Something went wrong!");
+       toast.error("Incorrect email or password. Kindly check your credentials.");
     }
   };
 
