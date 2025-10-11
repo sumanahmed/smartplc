@@ -1,61 +1,50 @@
 'use client'
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ProductDetails from '@/components/frontend/ProductDetails';
-import { getProductsByCategory } from '@/data/products';
+import { getProductDetails } from '@/lib/productsApi';
 
 interface CartItem {
   id: number;
   name: string;
-  price: number;
+  purchase_price: number;
   quantity: number;
   image: string;
-  size?: string;
-  color?: string;
+  //size?: string;
+  //color?: string;
+  brand?: { id: number; name: string };
+  category?: { id: number; name: string };
+  description: string;
 }
 
 export default function ProductPage() {
   const params = useParams();
-  const router = useRouter();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    const demoProduct = {
-      id: 1,
-      name: "Premium Wireless Headphones",
-      price: 199.99,
-      originalPrice: 299.99,
-      image: "https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400",
-      images: [
-        "https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400",
-        "https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=400",
-        "https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=400"
-      ],
-      rating: 4.8,
-      reviews: 324,
-      category: "Electronics",
-      inStock: true,
-      description: "Experience premium sound quality with these wireless headphones. Featuring active noise cancellation, 30-hour battery life, and comfortable over-ear design. Perfect for music lovers, gamers, and professionals who demand the best audio experience.",
-      sizes: [],
-      colors: ["Black", "White", "Silver"]
+    const fetchProduct = async () => {
+      try {
+        const data = await getProductDetails(Number(params.id));
+        setProduct(data);
+      } catch (err) {
+        console.error("Failed to fetch product:", err);
+      } finally {
+        setLoading(false);
+      }
     };
-    
-    setProduct(demoProduct);
-    setLoading(false);
 
+    fetchProduct();
   }, [params.id]);
 
   const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
-    const existingItem = cartItems.find(item => 
-      item.id === product.id && item.size === size && item.color === color
-    );
+    const existingItem = cartItems.find(item => item.id === product.id);
 
     if (existingItem) {
-      setCartItems(cartItems.map(item => 
-        item.id === product.id && item.size === size && item.color === color
+      setCartItems(cartItems.map(item =>
+        item.id === product.id
           ? { ...item, quantity: item.quantity + quantity }
           : item
       ));
@@ -63,18 +52,17 @@ export default function ProductPage() {
       setCartItems([...cartItems, {
         id: product.id,
         name: product.name,
-        price: product.price,
+        purchase_price: product.purchase_price,
         quantity,
         image: product.image,
-        size,
-        color
+        brand: product.brand,
+        category: product.category
       }]);
     }
   };
 
   const handleAddToWishlist = (product: any) => {
-    const isAlreadyInWishlist = wishlistItems.some(item => item.id === product.id);
-    if (!isAlreadyInWishlist) {
+    if (!wishlistItems.some(item => item.id === product.id)) {
       setWishlistItems([...wishlistItems, product]);
     }
   };

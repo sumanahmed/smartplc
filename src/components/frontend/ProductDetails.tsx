@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import { Star, Heart, ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw } from 'lucide-react';
 import Image from 'next/image';
-import { Product } from '@/data/products';
+// import { Product } from '@/data/products';
+
+interface Product {
+  id: number;
+  name: string;
+  purchase_price: number;
+  originalPrice?: number;
+  image: string;
+  category?: { id: number; name: string };
+  brand?: { id: number; name: string };
+  stock: boolean;
+  description: string;
+}
 
 interface ProductDetailsProps {
   product: Product;
-  onAddToCart: (product: Product, quantity: number, size?: string, color?: string) => void;
+  onAddToCart: (product: Product, quantity: number, purchase_price?: string, color?: string) => void;
   onAddToWishlist: (product: Product) => void;
 }
 
@@ -33,44 +45,46 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Product Images */}
         <div className="space-y-4">
+          {/* Main Product Image */}
           <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-            <Image
-              src={product.images?.[selectedImage] || product.image}
+            <img
+              src={
+                product.image.startsWith("http")
+                  ? product.image
+                  : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/products/${product.image}`
+              }
               alt={product.name}
-              width={500}
-              height={500}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover rounded-lg"
             />
           </div>
+
+          {/* Optional Thumbnail / Small Image Preview */}
           <div className="flex space-x-2 overflow-x-auto">
-            {(product.images || [product.image]).map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                  selectedImage === index ? 'border-blue-500' : 'border-gray-200'
-                }`}
-              >
-                <Image
-                  src={image}
-                  alt={`${product.name} ${index + 1}`}
-                  width={200}
-                  height={300}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
+            <button
+              className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200"
+            >
+              <img
+                src={
+                  product.image.startsWith("http")
+                    ? product.image
+                    : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/products/${product.image}`
+                }
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </button>
           </div>
         </div>
+
 
         {/* Product Info */}
         <div className="space-y-6">
           <div>
-            <p className="text-sm text-gray-500 mb-2">{product.category}</p>
+            {/* <p className="text-sm text-gray-500 mb-2">{product.category?.name}</p> */}
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
             
             <div className="flex items-center mb-4">
-              <div className="flex items-center">
+              {/* <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
@@ -82,11 +96,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-500 ml-2">({product.reviews} reviews)</span>
+              <span className="text-sm text-gray-500 ml-2">({product.reviews} reviews)</span> */}
+              <span className="text-sm text-gray-500 ml-2">{product.brand?.name}</span>
             </div>
             
             <div className="flex items-center space-x-3 mb-6">
-              <span className="text-3xl font-bold text-gray-900">${product.price}</span>
+              <span className="text-3xl font-bold text-gray-900">${product.purchase_price}</span>
               {product.originalPrice && (
                 <>
                   <span className="text-xl text-gray-500 line-through">
@@ -101,7 +116,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
           </div>
 
           {/* Size Selection */}
-          {product.sizes && product.sizes.length > 0 && (
+          {/* {product.sizes && product.sizes.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
               <div className="flex flex-wrap gap-2">
@@ -120,10 +135,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Color Selection */}
-          {product.colors && product.colors.length > 0 && (
+          {/* {product.colors && product.colors.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-gray-900 mb-3">Color</h3>
               <div className="flex flex-wrap gap-2">
@@ -142,7 +157,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           {/* Quantity and Add to Cart */}
           <div className="flex items-center space-x-4">
@@ -164,11 +179,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
             
             <button
               onClick={handleAddToCart}
-              disabled={!product.inStock}
+              disabled={!product.stock}
               className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
             >
               <ShoppingCart className="h-5 w-5" />
-              <span>{product.inStock ? 'Add to Cart' : 'Out of Stock'}</span>
+              <span>{product.stock ? 'Add to Cart' : 'Out of Stock'}</span>
             </button>
             
             <button
@@ -192,7 +207,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
           )}
 
           {/* Features */}
-          <div className="border-t pt-6">
+          {/* <div className="border-t pt-6">
             <div className="grid grid-cols-1 gap-4">
               <div className="flex items-center space-x-3">
                 <Truck className="h-5 w-5 text-gray-400" />
@@ -207,7 +222,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
                 <span className="text-sm text-gray-600">2-year warranty included</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

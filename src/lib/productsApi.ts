@@ -97,6 +97,11 @@ export const getProduct = async (id: number): Promise<Product> => {
   return res.data.data;
 };
 
+export const getProductDetails = async (id: number): Promise<Product> => {
+  const res = await api.get(`/api/products-details/${id}`);
+  return res.data.data;
+};
+
 export const updateProduct = async (id: number, payload: FormData | object): Promise<Product> => {
   if (payload instanceof FormData) {
     // method spoof to ensure Laravel handles multipart properly

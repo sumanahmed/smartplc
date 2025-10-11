@@ -16,7 +16,7 @@ interface CartItem {
 
 export default function Home() {
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
-  const [cartItems, setCartItems] = useState <CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [categoryProducts, setCategoryProducts] = useState<{ [key: string]: any[] }>({});
 
@@ -26,11 +26,10 @@ export default function Home() {
         const cats = await fetchAllActiveCategories();
         setCategories(cats);
 
-        // fetch products for each category (limited for home)
         const productData: { [key: string]: any[] } = {};
         for (let cat of cats) {
           const products = await fetchProductsByCategorySlug(cat.slug);
-          productData[cat.slug] = products.slice(0, 8); // just 8 product home e
+          productData[cat.slug] = products.slice(0, 8);
         }
         setCategoryProducts(productData);
       } catch (err) {
@@ -41,12 +40,11 @@ export default function Home() {
   }, []);
 
   const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
-    const existingItem = cartItems.find(item => 
+    const existingItem = cartItems.find(item =>
       item.id === product.id && item.size === size && item.color === color
     );
-
     if (existingItem) {
-      setCartItems(cartItems.map(item => 
+      setCartItems(cartItems.map(item =>
         item.id === product.id && item.size === size && item.color === color
           ? { ...item, quantity: item.quantity + quantity }
           : item
@@ -55,7 +53,7 @@ export default function Home() {
       setCartItems([...cartItems, {
         id: product.id,
         name: product.name,
-        price: product.price,
+        price: product.purchase_price,
         quantity,
         image: product.image,
         size,
@@ -65,8 +63,7 @@ export default function Home() {
   };
 
   const handleAddToWishlist = (product: any) => {
-    const isAlreadyInWishlist = wishlistItems.some(item => item.id === product.id);
-    if (!isAlreadyInWishlist) {
+    if (!wishlistItems.some(item => item.id === product.id)) {
       setWishlistItems([...wishlistItems, product]);
     }
   };
