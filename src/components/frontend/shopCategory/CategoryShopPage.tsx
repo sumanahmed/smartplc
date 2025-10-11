@@ -113,7 +113,7 @@ export default function CategoryShopPage({ slug }: Props) {
           </div>
         </div>
         {/* Rating */}
-        <div className="bg-white p-4 rounded shadow">
+        {/* <div className="bg-white p-4 rounded shadow">
           <h4 className="font-semibold mb-3">Rating</h4>
           <select value={rating} onChange={e=>{ setRating(e.target.value?Number(e.target.value):""); setPage(1); }} className="w-full border p-2 rounded">
             <option value="">All ratings</option>
@@ -122,7 +122,7 @@ export default function CategoryShopPage({ slug }: Props) {
             <option value={2}>2+ stars</option>
             <option value={1}>1+ star</option>
           </select>
-        </div>
+        </div> */}
       </aside>
 
       {/* Products */}
