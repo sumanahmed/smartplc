@@ -106,6 +106,7 @@ export default function ProductsPage() {
         // attach relation objects from lookups if backend didn't return them
         const updatedWithRelations: Product = {
           ...updated,
+          status: updated.status ?? 1,
           category: updated.category ?? categoryList.find(c => c.id === updated.category_id) ?? undefined,
           brand: updated.brand ?? brandList.find(b => b.id === updated.brand_id) ?? undefined,
         };
@@ -116,6 +117,7 @@ export default function ProductsPage() {
         const created = await createProduct(formData); // backend returns created product
         const createdWithRelations: Product = {
           ...created,
+          status: created.status ?? 1,
           category: created.category ?? categoryList.find(c => c.id === created.category_id) ?? undefined,
           brand: created.brand ?? brandList.find(b => b.id === created.brand_id) ?? undefined,
         };
@@ -152,21 +154,39 @@ export default function ProductsPage() {
     }
   }
 
+  // async function handleToggleStatus(item: Product) {
+  //   try {
+  //     const updated = await toggleProductStatus(item.id!); // returns product
+  //     const updatedWithRelations: Product = {
+  //       ...updated,
+  //       category: updated.category ?? categoryList.find(c => c.id === updated.category_id) ?? undefined,
+  //       brand: updated.brand ?? brandList.find(b => b.id === updated.brand_id) ?? undefined,
+  //     };
+      
+  //     setItems(prev => prev.map(p => (p.id === updatedWithRelations.id ? updatedWithRelations : p)));
+  //     toast.success("Status updated");
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to update status");
+  //   }
+  // }
+
   async function handleToggleStatus(item: Product) {
     try {
-      const updated = await toggleProductStatus(item.id!); // returns product
-      const updatedWithRelations: Product = {
-        ...updated,
-        category: updated.category ?? categoryList.find(c => c.id === updated.category_id) ?? undefined,
-        brand: updated.brand ?? brandList.find(b => b.id === updated.brand_id) ?? undefined,
-      };
-      setItems(prev => prev.map(p => (p.id === updatedWithRelations.id ? updatedWithRelations : p)));
-      toast.success("Status updated");
+      const updated = await toggleProductStatus(item.id);
+      
+      setItems((prev: Product[]) =>
+        prev.map((cat) => (cat.id === item.id ? updated : cat))
+      );
+  
+      toast.success("Status updated Sucessfully!");
     } catch (err) {
       console.error(err);
       toast.error("Failed to update status");
     }
   }
+
+  
 
   return (
     <div className="p-6">
