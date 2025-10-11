@@ -5,6 +5,21 @@ import api from "@/lib/api";
  * Laravel paginator meta shape (common fields).
  * Adjust if your backend uses different keys.
  */
+
+export interface Product {
+  id: number;
+  name: string;
+  image: string;
+  purchase_price: number;
+  stock: number;
+  // add other fields as per your backend
+}
+
+export interface Brand {
+  id: number;
+  name: string;
+}
+
 export interface PaginationMeta {
   current_page: number;
   last_page: number;
@@ -55,6 +70,6 @@ export const fetchFilterCategoryProducts = async (
 };
 
 export const fetchCategoryBrands = async (slug: string): Promise<Brand[]> => {
-    const res = await api.get(`/api/categories/${slug}/brands`);
-    return res.data.data;
+  const res = await api.get(`/api/categories/${slug}/brands`);
+  return res.data.data;
 };
