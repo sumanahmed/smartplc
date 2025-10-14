@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Modal from "../ViewModal";
+import { Product } from './ProductForm';
 
 interface Category {
   id: number;
@@ -10,20 +11,6 @@ interface Category {
 interface Brand {
   id: number;
   name: string;
-}
-
-export interface Product {
-  id: number;
-  name: string;
-  slug?: string;
-  category_id: number;
-  brand_id: number;
-  purchase_price: number;
-  stock: number;
-  description?: string;
-  image?: string;
-  category?: Category;
-  brand?: Brand;
 }
 
 interface ProductDetailsModalProps {

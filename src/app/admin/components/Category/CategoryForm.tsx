@@ -75,10 +75,8 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initial = null, onCancel, o
     };
     try {
       setSaving(true);
-      const result = await onSave(payload);
-      if (result) {
-        toast.success("Saved successfully");
-      }
+      await onSave(payload);
+      toast.success("Saved successfully");
       
     } catch (err) {
       const message = (err as any)?.response?.data?.message ?? (err as Error).message ?? "Save failed";

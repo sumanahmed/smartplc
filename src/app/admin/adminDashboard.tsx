@@ -24,20 +24,17 @@ interface SidebarItem {
   id: string;
   label: string;
   icon: React.ComponentType<any>;
-  component: React.ComponentType;
+  component?: React.ComponentType; // Make component optional
   action?: () => void;       
 }
 
-//import FormsPage from './components/FormsPage';
-//import DataTablePage from './components/DataTablePage';
+// Your component imports...
 import CategoryPage from './components/Category/CategoryListPage';
 import BrandPage from './components/Brand/BrandListPage';
 import ProductPage from './components/Product/ProductListPage';
 import CustomerPage from './components/CustomerPage';
 import UserPage from './components/User/AllUserPage';
 import OrderDetailsPage from './components/OrderDetailsPage';
-
-
 
 const DashboardPage = () => {
   return (
@@ -69,7 +66,6 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // ✅ hooks inside component body
   const { logout } = useAuthStore();
   const router = useRouter();
 
@@ -92,66 +88,64 @@ const AdminDashboard = () => {
     { id: "customer-table", label: "Customer", icon: FileUser, component: CustomerPage },
     { id: "user-table", label: "User", icon: FileUser, component: UserPage },
     { id: "order-details-table", label: "Order Details", icon: ListOrdered, component: OrderDetailsPage },
-    //{ id: "forms", label: "Forms", icon: FileText, component: FormsPage },
-    //{ id: "data-table", label: "Data Table", icon: Table, component: DataTablePage },
-    { id: "logout", label: "Logout", icon: LogOut, action: handleLogout},
+    { id: "logout", label: "Logout", icon: LogOut, action: handleLogout }, // No component needed
   ];
 
-  const ActiveComponent =
-    sidebarItems.find((item) => item.id === activeTab)?.component || DashboardPage;
+  // Find the active component, fallback to DashboardPage
+  const activeItem = sidebarItems.find((item) => item.id === activeTab);
+  const ActiveComponent = activeItem?.component || DashboardPage;
 
-    return (
-      <div className="min-h-screen bg-gray-100">
-        {/* Sidebar */}
-        <div
-          className={`${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } fixed inset-y-0 left-0 z-40 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0`}
-        >
-          <div className="flex items-center justify-center h-16 bg-blue-600 text-white">
-            <h1 className="text-xl font-bold">Admin Panel</h1>
-          </div>
-  
-          <nav className="mt-8">
-            {sidebarItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    if (item.action) {
-                      item.action(); // 👈 handle logout
-                    } else {
-                      setActiveTab(item.id);
-                    }
-                  }}
-                  className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
-                    activeTab === item.id && !item.action
-                      ? "bg-blue-50 text-blue-600 border-r-4 border-blue-600"
-                      : "text-gray-700"
-                  } ${item.id === "logout" ? "text-red-600 hover:bg-red-50" : ""}`}
-                >
-                  <Icon size={20} className="mr-3" />
-                  <span className="font-medium">{item.label}</span>
-                  {activeTab === item.id && !item.action && (
-                    <ChevronRight size={16} className="ml-auto" />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div
+        className={`${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } fixed inset-y-0 left-0 z-40 w-64 h-screen bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0`}
+      >
+        <div className="flex items-center justify-center h-16 bg-blue-600 text-white">
+          <h1 className="text-xl font-bold">Admin Panel</h1>
         </div>
-  
-        {/* Main Content */}
-        <div className="flex-1 ml-64 h-screen overflow-y-auto">
-          <main className="p-6">
-            {!sidebarItems.find((i) => i.id === activeTab)?.action && (
-              <ActiveComponent />
-            )}
-          </main>
-        </div>
+
+        <nav className="mt-8">
+          {sidebarItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.action) {
+                    item.action();
+                  } else {
+                    setActiveTab(item.id);
+                  }
+                }}
+                className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 transition-colors ${
+                  activeTab === item.id && !item.action
+                    ? "bg-blue-50 text-blue-600 border-r-4 border-blue-600"
+                    : "text-gray-700"
+                } ${item.id === "logout" ? "text-red-600 hover:bg-red-50" : ""}`}
+              >
+                <Icon size={20} className="mr-3" />
+                <span className="font-medium">{item.label}</span>
+                {activeTab === item.id && !item.action && (
+                  <ChevronRight size={16} className="ml-auto" />
+                )}
+              </button>
+            );
+          })}
+        </nav>
       </div>
-    );
-  };
-  
-  export default AdminDashboard;
+
+      {/* Main Content */}
+      <div className={`${sidebarOpen ? "ml-64" : "ml-0"} transition-all duration-300 h-screen overflow-y-auto`}>
+        <main className="p-6">
+          {/* Only render component if it exists and this is not an action item */}
+          {!activeItem?.action && <ActiveComponent />}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;

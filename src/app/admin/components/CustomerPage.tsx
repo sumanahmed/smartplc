@@ -12,7 +12,7 @@ import {
 import toast from "react-hot-toast";
 
 export default function CategoriesPage() {
-  const [items, setItems] = useState<Customer[]>([]);
+  const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   //const [open, setOpen] = useState(false);

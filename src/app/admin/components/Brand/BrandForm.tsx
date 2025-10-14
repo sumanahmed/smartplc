@@ -73,12 +73,11 @@ const BrandForm: React.FC<BrandFormProps> = ({ initial = null, onCancel, onSave 
       name: name.trim(),
       slug: slug.trim() || slugify(name)
     };
+
     try {
       setSaving(true);
-      const result = await onSave(payload);
-      if (result) {
-        toast.success("Saved successfully");
-      }
+      await onSave(payload); 
+      toast.success("Saved successfully");
       
     } catch (err) {
       const message = (err as any)?.response?.data?.message ?? (err as Error).message ?? "Save failed";

@@ -15,6 +15,20 @@ import {
 
 import toast from "react-hot-toast";
 
+interface User {
+  id: number;
+  name: string;
+  first_name?: string;
+  last_name?: string;
+  email: string;
+  phone?: string;
+  status?: number;
+  created_at?: string;
+  updated_at?: string;
+  // Add role if it exists in API response, otherwise make it optional
+  role?: string;
+}
+
 export default function CategoriesPage() {
   const [items, setItems] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);

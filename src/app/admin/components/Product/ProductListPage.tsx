@@ -1,4 +1,4 @@
-// ProductsPage.tsx
+
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
@@ -31,16 +31,24 @@ export default function ProductsPage() {
   const [lastPage, setLastPage] = useState(1);
   const [categoryList, setCategories] = useState<Category[]>([]);
   const [brandList, setBrands] = useState<Brand[]>([]);
-  const [viewProduct, setViewProduct] = useState<Product | null>(null); // optional view modal
+  const [viewProduct, setViewProduct] = useState<Product | null>(null);
   const openView = (product: Product) => setViewProduct(product);
   const closeView = () => setViewProduct(null);
 
   async function loadLookups() {
     try {
       const [cats, brs] = await Promise.all([getAllCategory(), getAllBrand()]);
-      // getAllCategory / getAllBrand must return arrays of {id,name}
-      setCategories(Array.isArray(cats) ? cats : (cats.data ?? []));
-      setBrands(Array.isArray(brs) ? brs : (brs.data ?? []));
+      
+      const categoriesData = Array.isArray(cats) 
+        ? cats 
+        : (cats as any)?.data ?? [];
+      
+      const brandsData = Array.isArray(brs) 
+        ? brs 
+        : (brs as any)?.data ?? [];
+      
+      setCategories(categoriesData);
+      setBrands(brandsData);
     } catch (err) {
       console.error("Failed to load categories/brands", err);
     }
@@ -59,11 +67,13 @@ export default function ProductsPage() {
   async function loadData(query = "", page = 1) {
     setLoading(true);
     try {
-      const res = await fetchProducts(query, page, 10); // must return { data: Product[], meta: {...} }
-      setItems(res.data ?? []);
-      if (res.meta) {
-        setCurrentPage(res.meta.current_page);
-        setLastPage(res.meta.last_page);
+      const res = await fetchProducts(query, page, 10);
+      const productsData = (res as any)?.data ?? [];
+      setItems(productsData);
+      
+      if ((res as any)?.meta) {
+        setCurrentPage((res as any).meta.current_page);
+        setLastPage((res as any).meta.last_page);
       } else {
         setCurrentPage(1);
         setLastPage(1);
@@ -81,11 +91,10 @@ export default function ProductsPage() {
   }
 
   function openEdit(item: Product) {
-    // ensure editing object includes category_id & brand_id (they may be nested)
     const normalized: Product = {
       ...item,
-      category_id: item.category_id ?? item.category?.id,
-      brand_id: item.brand_id ?? item.brand?.id,
+      category_id: item.category_id ?? item.category?.id ?? 0,
+      brand_id: item.brand_id ?? item.brand?.id ?? 0,
     };
     setEditing(normalized);
     setOpen(true);
@@ -95,41 +104,63 @@ export default function ProductsPage() {
     if (page < 1 || page > lastPage) return;
     loadData(search, page);
   }
-
-  // IMPORTANT: onSave receives FormData
-  async function handleSave(formData: FormData) {
+  async function handleSave(formData: FormData): Promise<Product> {
     setSubmitting(true);
     try {
       if (editing && editing.id) {
-        // update
-        const updated = await updateProduct(editing.id, formData); // backend should return updated product object
-        // attach relation objects from lookups if backend didn't return them
+        const updated = await updateProduct(editing.id, formData);
+        
+        // Create a complete Product object with all required properties
         const updatedWithRelations: Product = {
-          ...updated,
-          status: updated.status ?? 1,
-          category: updated.category ?? categoryList.find(c => c.id === updated.category_id) ?? undefined,
-          brand: updated.brand ?? brandList.find(b => b.id === updated.brand_id) ?? undefined,
+          id: updated.id,
+          name: updated.name ?? editing.name,
+          slug: updated.slug ?? editing.slug,
+          category_id: (updated as any).category_id ?? editing.category_id,
+          brand_id: (updated as any).brand_id ?? editing.brand_id,
+          purchase_price: (updated as any).purchase_price ?? editing.purchase_price,
+          stock: (updated as any).stock ?? editing.stock,
+          description: (updated as any).description ?? editing.description,
+          image: (updated as any).image ?? editing.image,
+          image_url: (updated as any).image_url ?? editing.image_url,
+          status: (updated as any).status ?? editing.status ?? 1,
+          category: (updated as any).category ?? editing.category ?? categoryList.find(c => c.id === ((updated as any).category_id ?? editing.category_id)) ?? undefined,
+          brand: (updated as any).brand ?? editing.brand ?? brandList.find(b => b.id === ((updated as any).brand_id ?? editing.brand_id)) ?? undefined,
         };
+        
         setItems(prev => prev.map(p => (p.id === updatedWithRelations.id ? updatedWithRelations : p)));
         toast.success("Product updated successfully");
+        setOpen(false);
+        return updatedWithRelations;
       } else {
-        // create
-        const created = await createProduct(formData); // backend returns created product
+        const created = await createProduct(formData);
+        
+        // Create a complete Product object with all required properties
         const createdWithRelations: Product = {
-          ...created,
-          status: created.status ?? 1,
-          category: created.category ?? categoryList.find(c => c.id === created.category_id) ?? undefined,
-          brand: created.brand ?? brandList.find(b => b.id === created.brand_id) ?? undefined,
+          id: created.id,
+          name: created.name,
+          slug: created.slug,
+          category_id: (created as any).category_id,
+          brand_id: (created as any).brand_id,
+          purchase_price: (created as any).purchase_price,
+          stock: (created as any).stock,
+          description: (created as any).description,
+          image: (created as any).image,
+          image_url: (created as any).image_url,
+          status: (created as any).status ?? 1,
+          category: (created as any).category ?? categoryList.find(c => c.id === (created as any).category_id) ?? undefined,
+          brand: (created as any).brand ?? brandList.find(b => b.id === (created as any).brand_id) ?? undefined,
         };
-        // add to top of list without reload
+        
         setItems(prev => [createdWithRelations, ...prev]);
         toast.success("Product created successfully");
+        setOpen(false);
+        return createdWithRelations;
       }
-      setOpen(false);
     } catch (err: any) {
       console.error(err);
       const msg = err?.response?.data?.message ?? err?.message ?? "Save failed";
       toast.error(msg);
+      throw err;
     } finally {
       setSubmitting(false);
     }
@@ -154,47 +185,42 @@ export default function ProductsPage() {
     }
   }
 
-  // async function handleToggleStatus(item: Product) {
-  //   try {
-  //     const updated = await toggleProductStatus(item.id!); // returns product
-  //     const updatedWithRelations: Product = {
-  //       ...updated,
-  //       category: updated.category ?? categoryList.find(c => c.id === updated.category_id) ?? undefined,
-  //       brand: updated.brand ?? brandList.find(b => b.id === updated.brand_id) ?? undefined,
-  //     };
-      
-  //     setItems(prev => prev.map(p => (p.id === updatedWithRelations.id ? updatedWithRelations : p)));
-  //     toast.success("Status updated");
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to update status");
-  //   }
-  // }
-
   async function handleToggleStatus(item: Product) {
     try {
-      const updated = await toggleProductStatus(item.id);
+      const updated = await toggleProductStatus(item.id!);
       
+      // Update the item with the new status while preserving all other properties
       setItems((prev: Product[]) =>
-        prev.map((cat) => (cat.id === item.id ? updated : cat))
+        prev.map((prod) => 
+          prod.id === item.id 
+            ? { ...prod, status: (updated as any).status ?? updated }
+            : prod
+        )
       );
   
-      toast.success("Status updated Sucessfully!");
+      toast.success("Status updated Successfully!");
     } catch (err) {
       console.error(err);
       toast.error("Failed to update status");
     }
   }
 
-  
-
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">Product List</h2>
         <div className="flex items-center gap-3">
-          <input ref={searchRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name" className="border rounded px-3 py-2 w-64" />
-          <button onClick={openAdd} className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          <input 
+            ref={searchRef} 
+            value={search} 
+            onChange={(e) => setSearch(e.target.value)} 
+            placeholder="Search by name" 
+            className="border rounded px-3 py-2 w-64" 
+          />
+          <button 
+            onClick={openAdd} 
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
             <Plus size={18} className="mr-2" /> Add New
           </button>
         </div>
@@ -230,7 +256,12 @@ export default function ProductsPage() {
                 <td className="px-6 py-4">{item.stock}</td>
                 <td className="px-6 py-4">
                   <label className="inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked={item.status === 1} onChange={() => handleToggleStatus(item)} className="sr-only peer" />
+                    <input 
+                      type="checkbox" 
+                      checked={item.status === 1} 
+                      onChange={() => handleToggleStatus(item)} 
+                      className="sr-only peer" 
+                    />
                     <div className="relative w-14 h-7 bg-gray-200 rounded-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-full"></div>
                   </label>
                 </td>
@@ -249,18 +280,36 @@ export default function ProductsPage() {
 
       {/* pagination */}
       <div className="flex justify-between items-center mt-4">
-        <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1 border rounded disabled:opacity-50">Previous</button>
+        <button 
+          onClick={() => goToPage(currentPage - 1)} 
+          disabled={currentPage === 1} 
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
         <span>Page {currentPage} of {lastPage}</span>
-        <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === lastPage} className="px-3 py-1 border rounded disabled:opacity-50">Next</button>
+        <button 
+          onClick={() => goToPage(currentPage + 1)} 
+          disabled={currentPage === lastPage} 
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
 
       {/* create / edit modal */}
       <Modal open={open} onClose={() => setOpen(false)} title={editing ? "Edit Product" : "Add Product"}>
-        <ProductForm initial={editing ?? undefined} categories={categoryList} brands={brandList} onCancel={() => setOpen(false)} onSave={handleSave} />
+        <ProductForm 
+          initial={editing ?? undefined} 
+          categories={categoryList} 
+          brands={brandList} 
+          onCancel={() => setOpen(false)} 
+          onSave={handleSave} 
+        />
         {submitting && <div className="text-sm text-gray-500 mt-2">Saving...</div>}
       </Modal>
 
-      {/* view modal (simple) */}
+      {/* view modal */}
       {viewProduct && (
         <ProductDetailsModal
           open={!!viewProduct}

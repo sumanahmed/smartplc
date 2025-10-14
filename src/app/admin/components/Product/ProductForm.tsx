@@ -17,8 +17,8 @@ export interface Product {
   purchase_price: number;
   stock: number;
   description?: string;
-  image?: string;         // filename
-  image_url?: string;     // full URL from accessor
+  image?: string;         
+  image_url?: string;   
   status?: ProductStatus;
   category?: Category;
   brand?: Brand;
@@ -76,7 +76,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, categories, brands, 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,6 +102,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, categories, brands, 
     setForm((s) => ({ ...s, image: f }));
     const url = URL.createObjectURL(f);
     setPreview(url);
+    // Clear image error if any
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors.image;
+      return newErrors;
+    });
     // revoke old blob later in cleanup
   };
 

@@ -1,10 +1,16 @@
-import React from "react";
+
+'use client'
+import { use } from 'react';
 import CategoryShopPage from "@/components/frontend/shopCategory/CategoryShopPage";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
 export default function Page({ params }: PageProps) {
-  return <CategoryShopPage slug={params.slug} />;
+  const { slug } = use(params);
+  
+  return <CategoryShopPage slug={slug} />;
 }
