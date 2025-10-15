@@ -5,7 +5,7 @@ import FrontendLayout from '@/components/frontend/FrontendLayout';
 import './globals.css';
 import ToastProvider from "./common/ToastProvider";
 
-const OG_URL = 'https://smartplcbd.com';
+const OG_URL = 'https://backbone.smartplcbd.com/';
 
 export const metadata: Metadata = {
   title: 'SmartPLCBD',
