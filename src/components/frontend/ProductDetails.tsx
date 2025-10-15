@@ -37,8 +37,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
     onAddToWishlist(product);
   };
 
-  const discount = product.originalPrice ? 
-    Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
+  // const discount = product.originalPrice ? 
+  //   Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -107,9 +107,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
                   <span className="text-xl text-gray-500 line-through">
                     ${product.originalPrice}
                   </span>
-                  <span className="bg-red-500 text-white px-2 py-1 rounded-full text-sm font-semibold">
+                  {/* <span className="bg-red-500 text-white px-2 py-1 rounded-full text-sm font-semibold">
                     -{discount}%
-                  </span>
+                  </span> */}
                 </>
               )}
             </div>

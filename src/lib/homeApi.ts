@@ -6,18 +6,28 @@ import api from "@/lib/api";
  * Adjust if your backend uses different keys.
  */
 
+
 export interface Product {
   id: number;
   name: string;
-  image: string;
   purchase_price: number;
-  stock: number;
-  // add other fields as per your backend
+  originalPrice?: number;
+  image: string;
+  category: { id: number; name: string };
+  brand?: { id: number; name: string };
+  stock: boolean;
 }
 
 export interface Brand {
   id: number;
   name: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  products_count?: number;
 }
 
 export interface PaginationMeta {

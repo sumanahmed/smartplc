@@ -56,6 +56,7 @@ export default function ProductPage() {
         quantity,
         image: product.image,
         brand: product.brand,
+        description: product.description,
         category: product.category
       }]);
     }

@@ -147,7 +147,12 @@ export default function CategoryShopPage({ slug }: Props) {
           products.length===0 ? <div>No products found</div> :
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map(p=>(
-              <ProductCard key={p.id} product={p} onAddToCart={handleAddToCart} />
+              <ProductCard
+                key={p.id}
+                product={p}
+                onAddToCart={handleAddToCart}
+                onAddToWishlist={() => console.log("wishlist", p)}
+              />
             ))}
           </div>
         }

@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { Filter, Grid, List, ChevronDown } from 'lucide-react';
-import ProductCard from './ProductCard';
+// import ProductCard from './ProductCard';
 
 interface Product {
   id: number;
   name: string;
   price: number;
+  purchase_price: number;
+  stock: number;
   originalPrice?: number;
   image: string;
   rating: number;
   reviews: number;
   category: string;
-  inStock: boolean;
+}
+
+export interface ProductCardProps {
+  product: Product;
+  onAddToCart: (product: Product) => void;
+  onAddToWishlist: (product: Product) => void;
 }
 
 interface CategoryListingProps {
@@ -190,20 +197,20 @@ const CategoryListing: React.FC<CategoryListingProps> = ({
           </div>
 
           {/* Products Grid */}
-          <div className={`${
+          {/* <div className={`${
             viewMode === 'grid' 
               ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
               : 'space-y-4'
           }`}>
             {sortedProducts.map(product => (
-              <ProductCard
+               <ProductCard
                 key={product.id}
                 product={product}
-                onAddToCart={onAddToCart}
-                onAddToWishlist={onAddToWishlist}
+                onAddToCart={handleAddToCart}
+                onAddToWishlist={handleAddToWishlist}
               />
             ))}
-          </div>
+          </div> */}
 
           {sortedProducts.length === 0 && (
             <div className="text-center py-12">

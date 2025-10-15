@@ -48,7 +48,8 @@ import { useAuthStore } from "@/store/authStore";
 // }
 
 const CustomerPage = () => {
-    const { user } = useAuthStore();
+  const { user } = useAuthStore();
+  const u: any = user;
     // const [user, setUserDetails] = useState({
     //     firstName : 'Rahat',
     //     lastName: 'Khan',
@@ -70,12 +71,14 @@ const CustomerPage = () => {
         zipCode: '',
         isDefault: false
     });
+  
     const [profileData, setProfileData] = useState({
-        firstName: user?.first_name,
-        lastName: user?.last_name,
-        email: user?.email,
-        phone: user?.phone,
+        firstName: u?.first_name || "",
+        lastName: u?.last_name || "",
+        email: u?.email || "",
+        phone: u?.phone || "",
     });
+    
 
     const [newAddress, setNewAddress] = useState({
         type: 'home' as 'home' | 'work' | 'other',
@@ -375,7 +378,7 @@ const CustomerPage = () => {
     ]
 
     const handleSaveProfile = () => {
-        setUserDetails({
+        setProfileData({
           ...user,
           ...profileData
         });
@@ -520,15 +523,15 @@ const CustomerPage = () => {
     
           <div className="flex items-center space-x-6 mb-8">
             <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
-              {user.avatar ? (
-                <Image src={user.avatar} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
+              {u.avatar ? (
+                <Image src={u.avatar} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
               ) : (
                 <User className="h-12 w-12 text-gray-400" />
               )}
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-gray-900">{user.firstName} {user.lastName}</h3>
-              <p className="text-gray-600">Member since {user.joinDate}</p>
+              <h3 className="text-xl font-semibold text-gray-900">{u.firstName} {u.lastName}</h3>
+              <p className="text-gray-600">Member since {u.joinDate}</p>
               <button className="text-blue-600 hover:text-blue-800 text-sm mt-1">Change Photo</button>
             </div>
           </div>
@@ -582,10 +585,10 @@ const CustomerPage = () => {
                 onClick={() => {
                   setIsEditing(false);
                   setProfileData({
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email,
-                    phone: user.phone
+                    firstName: u?.first_name || "",
+                    lastName: u?.last_name || "",
+                    email: u?.email || "",
+                    phone: u?.phone || "",
                   });
                 }}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
