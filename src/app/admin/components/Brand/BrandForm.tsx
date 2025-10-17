@@ -76,8 +76,7 @@ const BrandForm: React.FC<BrandFormProps> = ({ initial = null, onCancel, onSave 
 
     try {
       setSaving(true);
-      await onSave(payload); 
-      toast.success("Saved successfully");
+      await onSave(payload);
       
     } catch (err) {
       const message = (err as any)?.response?.data?.message ?? (err as Error).message ?? "Save failed";
