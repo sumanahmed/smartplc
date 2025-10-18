@@ -101,7 +101,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
             </div>
             
             <div className="flex items-center space-x-3 mb-6">
-              <span className="text-3xl font-bold text-gray-900">${product.purchase_price}</span>
+              <span className="text-3xl font-bold text-gray-900">Tk {product.purchase_price}</span>
               {product.originalPrice && (
                 <>
                   <span className="text-xl text-gray-500 line-through">
