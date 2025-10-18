@@ -8,6 +8,7 @@ interface Product {
   name: string;
   purchase_price: number;
   originalPrice?: number;
+  description: string;
   image: string;
   category: { id: number; name: string };
   brand?: { id: number; name: string };
