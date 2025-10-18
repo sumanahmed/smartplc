@@ -11,6 +11,7 @@ export interface Product {
   id: number;
   name: string;
   purchase_price: number;
+  description: string;
   originalPrice?: number;
   image: string;
   category: { id: number; name: string };
