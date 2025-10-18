@@ -6,6 +6,7 @@ interface Product {
   id: number;
   name: string;
   purchase_price: number;
+  description: string;
   originalPrice?: number;
   image: string;
   category: { id: number; name: string };
@@ -78,24 +79,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddTo
         </button>
       </div>
 
-      <div className="p-4">
-        {/* <p className="text-xs text-gray-500 mb-1">{product.category?.name || "No Category"}</p> */}
+      {/* <div className="p-4">
         <h3
-          className="font-semibold text-gray-900 mb-2 line-clamp-2 cursor-pointer hover:text-blue-600 transition-colors"
+          className="font-bold text-gray-900 mb-1 text-lg line-clamp-1 cursor-pointer hover:text-blue-600 transition-colors"
           onClick={handleProductClick}
         >
           {product.name}
         </h3>
 
-        <div className="flex items-center mb-2">
-          <span className="text-sm text-gray-500 ml-2">
-            {product.brand?.name || "No Brand"}
-          </span>
-        </div>
+        <p className="text-sm text-gray-500 mb-1 line-clamp-1">
+          {product.description}
+        </p>
+
+        <p className="text-sm text-gray-500 mb-2 font-medium">
+          {product.brand?.name || "No Brand"}
+        </p>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="text-lg font-bold text-gray-900">${product.purchase_price}</span>
+            <span className="text-lg font-bold text-gray-900">Tk {product.purchase_price}</span>
             {product.originalPrice && (
               <span className="text-sm text-gray-500 line-through">${product.originalPrice}</span>
             )}
@@ -110,7 +112,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddTo
             </button>
           )}
         </div>
-      </div>
+      </div> */}
+      
+      <div className="p-4 text-center">
+          <h3
+            className="font-bold text-gray-900 mb-1 text-lg line-clamp-1 cursor-pointer hover:text-blue-600 transition-colors"
+            onClick={handleProductClick}
+          >
+            {product.name}
+          </h3>
+
+          <p className="text-sm text-gray-500 mb-1">
+            {product.description}
+          </p>
+
+          <p className="text-sm font-bold mb-2 font-medium">
+            {product.brand?.name || "No Brand"}
+          </p>
+
+          <p className="text-xl font-bold text-gray-900">
+            Tk {product.purchase_price}
+          </p>
+        </div>
     </div>
   );
 };
