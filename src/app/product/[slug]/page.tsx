@@ -27,7 +27,7 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const data = await getProductDetails(Number(params.id));
+        const data = await getProductDetails(String(params.slug));
         setProduct(data);
       } catch (err) {
         console.error("Failed to fetch product:", err);
@@ -37,7 +37,7 @@ export default function ProductPage() {
     };
 
     fetchProduct();
-  }, [params.id]);
+  }, [params.slug]);
 
   const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
     const existingItem = cartItems.find(item => item.id === product.id);

@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import FrontendLayout from '@/components/frontend/FrontendLayout';
 import './globals.css';
 import ToastProvider from "./common/ToastProvider";
+import "react-quill-new/dist/quill.snow.css";
 
 const OG_URL = 'http://smart-plc-ec-system.test/';
 

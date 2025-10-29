@@ -1,7 +1,10 @@
 // ProductForm.tsx
 "use client";
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "react-hot-toast"; 
+
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 export type ProductStatus = 1 | 2; 
 
@@ -17,6 +20,7 @@ export interface Product {
   purchase_price: number;
   stock: number;
   description?: string;
+  specification?: string;
   image?: string;         
   image_url?: string;   
   status?: ProductStatus;
@@ -47,6 +51,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, categories, brands, 
     purchase_price: initial?.purchase_price ? String(initial.purchase_price) : "",
     stock: initial?.stock ? String(initial.stock) : "",
     description: initial?.description ?? "",
+    specification: initial?.specification ?? "",
     image: null as File | string | null, // File for new upload, string for existing filename/url
   });
 
@@ -139,6 +144,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, categories, brands, 
     fd.append("purchase_price", String(form.purchase_price));
     fd.append("stock", String(form.stock));
     fd.append("description", form.description ?? "");
+    fd.append("specification", form.specification ?? "");
     // append image if it's a File
     if (form.image instanceof File) {
       fd.append("image", form.image);
@@ -214,6 +220,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, categories, brands, 
           <label className="block text-sm font-medium mb-1">Description</label>
           <textarea name="description" value={form.description} onChange={handleChange} rows={4} className="w-full border rounded px-3 py-2" disabled={saving}/>
           {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+        </div>
+
+        <div className="col-span-12 mt-4">
+          <label className="block text-sm font-medium mb-1">Product Specification</label>
+          <ReactQuill
+            theme="snow"
+            value={form.specification}
+            onChange={(value) => setForm((s) => ({ ...s, specification: value }))}
+            className="bg-white border rounded"
+          />
+          {errors.specification && (
+            <p className="text-red-500 text-sm mt-1">{errors.specification}</p>
+          )}
         </div>
 
         <div className="col-span-12">

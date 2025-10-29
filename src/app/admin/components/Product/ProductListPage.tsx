@@ -2,7 +2,8 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
-import Modal from "../Modal";
+// import Modal from "../Modal";
+import Modal from "../ModalFormXl";
 import ProductForm, { Product } from "./ProductForm";
 import ProductDetailsModal from "./ProductDetailsModal";
 import Swal from "sweetalert2";
@@ -120,6 +121,7 @@ export default function ProductsPage() {
           purchase_price: (updated as any).purchase_price ?? editing.purchase_price,
           stock: (updated as any).stock ?? editing.stock,
           description: (updated as any).description ?? editing.description,
+          specification: (updated as any).specification ?? editing.specification,
           image: (updated as any).image ?? editing.image,
           image_url: (updated as any).image_url ?? editing.image_url,
           status: (updated as any).status ?? editing.status ?? 1,
@@ -144,6 +146,7 @@ export default function ProductsPage() {
           purchase_price: (created as any).purchase_price,
           stock: (created as any).stock,
           description: (created as any).description,
+          specification: (created as any).specification,
           image: (created as any).image,
           image_url: (created as any).image_url,
           status: (created as any).status ?? 1,

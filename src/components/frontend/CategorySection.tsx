@@ -5,10 +5,12 @@ import Link from "next/link";
 
 interface Product {
   id: number;
+  slug: string;
   name: string;
   purchase_price: number;
   originalPrice?: number;
   description: string;
+  specification: string;
   image: string;
   category: { id: number; name: string };
   brand?: { id: number; name: string };
