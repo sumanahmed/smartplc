@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 interface Product {
   id: number;
+  slug: string;
   name: string;
   purchase_price: number;
   originalPrice?: number;
@@ -13,6 +14,7 @@ interface Product {
   brand?: { id: number; name: string };
   stock: boolean;
   description: string;
+  specification: string;
 }
 
 interface ProductDetailsProps {
@@ -203,6 +205,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
               <p className="text-gray-600 leading-relaxed">{product.description}</p>
+            </div>
+          )}
+
+          {product.specification && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Product Specification</h3>
+              <div
+                className="prose"
+                dangerouslySetInnerHTML={{ __html: product.specification || "<p>No specification added.</p>" }}
+            />
             </div>
           )}
 

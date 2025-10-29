@@ -69,14 +69,14 @@ export const fetchProducts = async (
 
 
 export interface CreatePayload {
-  name: string;
-  slug?: string;
+  name: String;
   status?: ProductStatus;
   category_id?: number;
   brand_id?: number;
   purchase_price: number;
   stock: number;
-  description?: number;
+  description?: String;
+  specification?: String;
 }
 
 // export const createProduct = async (payload: CreatePayload): Promise<Product> => {
@@ -97,8 +97,8 @@ export const getProduct = async (id: number): Promise<Product> => {
   return res.data.data;
 };
 
-export const getProductDetails = async (id: number): Promise<Product> => {
-  const res = await api.get(`/api/products-details/${id}`);
+export const getProductDetails = async (slug: string): Promise<Product> => {
+  const res = await api.get(`/api/products-details/${slug}`);
   return res.data.data;
 };
 

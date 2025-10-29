@@ -89,6 +89,13 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
               </p>
             </div>
           )}
+          <div className="product-specification mt-4">
+          <h3 className="text-lg font-semibold mb-2">Product Specification</h3>
+          <div
+            className="prose"
+            dangerouslySetInnerHTML={{ __html: product.specification || "<p>No specification added.</p>" }}
+          />
+        </div>
         </div>
       </div>
     </Modal>
