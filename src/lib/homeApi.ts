@@ -10,8 +10,10 @@ import api from "@/lib/api";
 export interface Product {
   id: number;
   name: string;
+  slug: string;
   purchase_price: number;
   description: string;
+  specification: string;
   originalPrice?: number;
   image: string;
   category: { id: number; name: string };
