@@ -76,8 +76,8 @@ export default function CategoryShopPage({ slug }: Props) {
   };
   const applyPrice = () => setPage(1);
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setPage(1); };
-  const goPage = (p: number) => { if (!pageMeta) return; if (p<1) p=1; if (p>pageMeta.last_page) p=pageMeta.last_page; setPage(p); };
-  const handleAddToCart = (product: Product) => { console.log("Add to cart", product); };
+  //const goPage = (p: number) => { if (!pageMeta) return; if (p<1) p=1; if (p>pageMeta.last_page) p=pageMeta.last_page; setPage(p); };
+  //const handleAddToCart = (product: Product) => { console.log("Add to cart", product); };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -150,7 +150,7 @@ export default function CategoryShopPage({ slug }: Props) {
               <ProductCard
                 key={p.id}
                 product={p}
-                onAddToCart={handleAddToCart}
+                //onAddToCart={handleAddToCart}
                 onAddToWishlist={() => console.log("wishlist", p)}
               />
             ))}

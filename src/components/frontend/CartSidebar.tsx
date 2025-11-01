@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
-import { cartItems as mockCartItems } from '@/data/cartItems';
+import { cartItems as items } from '@/data/cartItems';
 import Image from 'next/image';
+import { useCartStore } from '@/store/useCartStore';
+import { useAuthStore } from "@/store/authStore";
 
 interface CartItem {
   id: number;
@@ -17,29 +19,36 @@ interface CartItem {
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  cartItems: CartItem[];
-  onUpdateQuantity: (id: number, quantity: number, size?: string, color?: string) => void;
-  onRemoveItem: (id: number, size?: string, color?: string) => void;
+  //cartItems: CartItem[];
+  //onUpdateQuantity: (id: number, quantity: number, size?: string, color?: string) => void;
+  //onRemoveItem: (id: number, size?: string, color?: string) => void;
 }
 
 const CartSidebar: React.FC<CartSidebarProps> = ({
   isOpen,
   onClose,
-  cartItems,
-  onUpdateQuantity,
-  onRemoveItem,
+  //cartItems,
+  //onUpdateQuantity,
+  //onRemoveItem,
 }) => {
-
-  const subtotal = mockCartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const { items, updateQuantity, removeItem, getSubtotal, clearCart } = useCartStore();
+  //const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 99 ? 0 : 9.99;
   const total = subtotal + shipping;
 
   const router = useRouter();
-
-  const checkOut = () => {
+  const { isAuthenticated } = useAuthStore();
+  
+  const handleCheckout = () => {
     onClose();
-    router.push(`/checkout`);
-  }
+    if (!isAuthenticated) {
+      // router.push("/login"); 
+      router.push("/Checkout");
+    } else {
+      router.push("/Checkout");
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -56,7 +65,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 transform transition-transform duration-300 ease-in-out shadow-2xl">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
+          {/* <div className="flex items-center justify-between p-6 border-b">
             <div className="flex items-center space-x-2">
               <ShoppingBag className="h-6 w-6 text-gray-700" />
               <h2 className="text-xl font-semibold text-gray-900">
@@ -69,11 +78,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             >
               <X className="h-5 w-5" />
             </button>
-          </div>
+          </div> */}
 
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-6">
-            {mockCartItems.length === 0 ? (
+            {items.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500 text-lg">Your cart is empty</p>
@@ -81,13 +90,17 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               </div>
             ) : (
               <div className="space-y-4">
-                {mockCartItems.map((item) => (
+                {items.map((item) => (
                   <div key={`${item.id}-${item.size}-${item.color}`} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
+                    <img
+                      src={
+                        item.image.startsWith("http")
+                          ? item.image
+                          : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/products/${item.image}`
+                      }
                       width={64}
                       height={64}
+                      alt={item.name}
                       className="w-16 h-16 object-cover rounded-md"
                     />
                     <div className="flex-1">
@@ -100,14 +113,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => onUpdateQuantity(item.id, Math.max(1, item.quantity - 1), item.size, item.color)}
+                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.size, item.color)}
                             className="p-1 hover:bg-gray-200 rounded"
                           >
                             <Minus className="h-3 w-3" />
                           </button>
                           <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
                           <button
-                            onClick={() => onUpdateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                            disabled={item.quantity >= item.stock}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
                             className="p-1 hover:bg-gray-200 rounded"
                           >
                             <Plus className="h-3 w-3" />
@@ -116,7 +130,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
                           <button
-                            onClick={() => onRemoveItem(item.id, item.size, item.color)}
+                            onClick={() => removeItem(item.id, item.size, item.color)}
                             className="p-1 text-red-500 hover:bg-red-50 rounded"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -131,7 +145,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           </div>
 
           {/* Footer */}
-          {mockCartItems.length > 0 && (
+          {items.length > 0 && (
             <div className="border-t p-6 space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
@@ -151,7 +165,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               </div>
               
               <button
-                onClick={checkOut}
+                onClick={handleCheckout}
                 className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
               >
                 Proceed to Checkout
@@ -163,6 +177,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
               >
                 Continue Shopping
               </button>
+              <button
+                onClick={() => {
+                  clearCart();
+                  onClose();
+                }}
+                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
+              >
+                Clear Cart
+            </button>
             </div>
           )}
         </div>

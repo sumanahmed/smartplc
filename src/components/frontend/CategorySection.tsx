@@ -14,7 +14,7 @@ interface Product {
   image: string;
   category: { id: number; name: string };
   brand?: { id: number; name: string };
-  stock: boolean;
+  stock: number;
   created_at?: string;
 }
 
