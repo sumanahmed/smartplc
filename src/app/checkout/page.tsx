@@ -370,11 +370,11 @@ const CheckoutPage = () => {
           <div className="space-y-4">
             {mockCartItems.map((item) => (
               <div key={item.id} className="flex items-center space-x-3">
-                <Image
+                {/* <Image
                   src={item.image}
                   alt={item.name}
                   className="w-16 h-16 object-cover rounded-md"
-                />
+                /> */}
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900">{item.name}</h3>
                   <p className="text-sm text-gray-600">

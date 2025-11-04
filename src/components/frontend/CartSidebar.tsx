@@ -42,12 +42,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   
   const handleCheckout = () => {
     onClose();
-    if (!isAuthenticated) {
-      // router.push("/login"); 
-      router.push("/Checkout");
-    } else {
-      router.push("/Checkout");
-    }
+    // if (!isAuthenticated) {
+    //   // router.push("/login"); 
+    //   router.push("/Checkout");
+    // } else {
+      router.push("/checkout");
+    // }
   };
 
   if (!isOpen) return null;
