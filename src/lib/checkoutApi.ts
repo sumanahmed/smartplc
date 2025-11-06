@@ -30,14 +30,20 @@ export interface PaymentInfo {
 }
 
 export interface CheckoutPayload {
-  customer_id: number | null;
-  shipping: ShippingInfo;
-  payment: PaymentInfo;
-  items: CheckoutItem[];
-  subtotal: number;
-  shipping_cost: number;
-  tax: number;
-  total: number;
+ firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  payment_method: 'cod' | 'bkash' | 'nagad' | 'card';
+  items: {
+    id: number;
+    name: string;
+    price: number;
+    quantity: number;
+  }[];
 }
 
 // ✅ same Axios-style pattern

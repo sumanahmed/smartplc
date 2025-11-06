@@ -152,12 +152,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   <span className="text-gray-600">Subtotal</span>
                   <span className="text-gray-900">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
+                {/* <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
                   <span className="text-gray-900">
                     {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
                   </span>
-                </div>
+                </div> */}
                 <div className="flex justify-between text-lg font-semibold border-t pt-2">
                   <span className="text-gray-900">Total</span>
                   <span className="text-gray-900">${total.toFixed(2)}</span>
@@ -171,12 +171,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 Proceed to Checkout
               </button>
               
-              <button
+              {/* <button
                 onClick={onClose}
                 className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
               >
                 Continue Shopping
-              </button>
+              </button> */}
               <button
                 onClick={() => {
                   clearCart();

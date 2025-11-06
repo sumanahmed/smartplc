@@ -5,6 +5,7 @@ import { MapPin, CreditCard, Shield } from 'lucide-react';
 import { useCartStore } from '@/store/useCartStore';
 import { useAuthStore } from '@/store/authStore';
 import { createOrder } from "@/lib/checkoutApi";
+import toast from "react-hot-toast";
 
 type ShippingState = {
   firstName: string;
@@ -143,36 +144,27 @@ const CheckoutPage: React.FC = () => {
   setLoading(true);
   try {
     const payload = {
-      customer_id: user?.id ?? null,
-      shipping: { ...shipping },
-      payment: {
-        method: payment.method,
-        tx_id: payment.txId ?? null,
-        card:
-          payment.method === "card"
-            ? {
-                card_number: payment.cardNumber,
-                expiry: payment.expiryDate,
-                cvv: payment.cvv,
-                name: payment.nameOnCard,
-              }
-            : null,
-      },
+      firstName: shipping.firstName,
+      lastName: shipping.lastName,
+      email: shipping.email,
+      phone: shipping.phone,
+      address: shipping.address,
+      city: shipping.city,
+      postal_code: shipping.zipCode, // rename field
+      payment_method: payment.method,
       items: items.map(it => ({
-        product_id: it.id,
-        quantity: it.quantity,
+        id: it.id, 
+        name: it.name,
         price: it.price,
+        quantity: it.quantity,
       })),
-      subtotal,
-      shipping_cost: shippingCost,
-      tax,
-      total,
     };
     // ✅ call your API helper
     const data = await createOrder(payload);
-    const order_id = data?.id ?? data?.order_id ?? null;
+    toast.success("Order placed successfully!");
     clearCart();
-    //router.push(`/order-success${order_id ? `?order_id=${order_id}` : ""}`);
+    const order_id = data?.order_id ?? data?.id ?? null;
+    router.push(`/order-success${order_id ? `?order_id=${order_id}` : ""}`);
   } catch (err: any) {
     console.error(err);
     setError(err.message || "Order failed, try again.");
