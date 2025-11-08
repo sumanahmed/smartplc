@@ -5,6 +5,7 @@ import { cartItems as items } from '@/data/cartItems';
 import Image from 'next/image';
 import { useCartStore } from '@/store/useCartStore';
 import { useAuthStore } from "@/store/authStore";
+import { useModalStore } from "@/store/modalStore";
 
 interface CartItem {
   id: number;
@@ -19,20 +20,15 @@ interface CartItem {
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  //cartItems: CartItem[];
-  //onUpdateQuantity: (id: number, quantity: number, size?: string, color?: string) => void;
-  //onRemoveItem: (id: number, size?: string, color?: string) => void;
 }
 
 const CartSidebar: React.FC<CartSidebarProps> = ({
   isOpen,
   onClose,
-  //cartItems,
-  //onUpdateQuantity,
-  //onRemoveItem,
 }) => {
   const { items, updateQuantity, removeItem, getSubtotal, clearCart } = useCartStore();
   //const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+ const { openAuthModal } = useModalStore();
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 99 ? 0 : 9.99;
   const total = subtotal + shipping;
@@ -42,12 +38,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   
   const handleCheckout = () => {
     onClose();
-    // if (!isAuthenticated) {
-    //   // router.push("/login"); 
-    //   router.push("/Checkout");
-    // } else {
+     if (!isAuthenticated) { 
+        openAuthModal();
+     } else {
       router.push("/checkout");
-    // }
+     }
   };
 
   if (!isOpen) return null;
@@ -152,12 +147,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   <span className="text-gray-600">Subtotal</span>
                   <span className="text-gray-900">${subtotal.toFixed(2)}</span>
                 </div>
-                {/* <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
                   <span className="text-gray-900">
                     {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
                   </span>
-                </div> */}
+                </div>
                 <div className="flex justify-between text-lg font-semibold border-t pt-2">
                   <span className="text-gray-900">Total</span>
                   <span className="text-gray-900">${total.toFixed(2)}</span>

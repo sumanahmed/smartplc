@@ -7,6 +7,8 @@ import AuthModal from './AuthModal'; // Import AuthModal
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore  } from "@/store/useCartStore";
 import Swal from "sweetalert2";
+import { useModalStore } from "@/store/modalStore";
+
 
 import Image from 'next/image';
 import logo from '../../../public/logo.png'
@@ -52,7 +54,8 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
 const [isLoggedIn, setIsLoggedIn] = useState(true);
 const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for AuthModal
+const { isAuthModalOpen, openAuthModal, closeAuthModal, setIsAuthModalOpen } = useModalStore();
+
 const [searchQuery, setSearchQuery] = useState('');
 const [cartItems, setCartItems] = useState<CartItem[]>([]);
 const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
@@ -282,7 +285,7 @@ useEffect(() => {
             ) : (
               <button
                 className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors focus:outline-none"
-                onClick={() => setIsAuthModalOpen(true)} // Open AuthModal
+                onClick={openAuthModal} // Open AuthModal
                 aria-label="Login"
               >
                 <User className="h-5 w-5" />
@@ -317,7 +320,7 @@ useEffect(() => {
 
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={closeAuthModal}
       />
 
       {/* <CartSidebar 
