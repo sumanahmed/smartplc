@@ -164,7 +164,8 @@ const CheckoutPage: React.FC = () => {
     toast.success("Order placed successfully!");
     clearCart();
     const order_id = data?.order_id ?? data?.id ?? null;
-    router.push(`/orderSuccess${order_id ? `?order_id=${order_id}` : ""}`);
+    //router.push(`/orderSuccess${order_id ? `?order_id=${order_id}` : ""}`);
+     router.push("/orderSuccess");
   } catch (err: any) {
     console.error(err);
     setError(err.message || "Order failed, try again.");
