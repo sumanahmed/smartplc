@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
-import { cartItems as items } from '@/data/cartItems';
-import Image from 'next/image';
 import { useCartStore } from '@/store/useCartStore';
 import { useAuthStore } from "@/store/authStore";
 import { useModalStore } from "@/store/modalStore";
@@ -86,7 +84,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
             ) : (
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={`${item.id}-${item.size}-${item.color}`} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                  <div key={`${item.id}`} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                     <img
                       src={
                         item.image.startsWith("http")
@@ -100,15 +98,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                     />
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-900 text-sm">{item.name}</h3>
-                      <div className="text-xs text-gray-500 mt-1">
+                      {/* <div className="text-xs text-gray-500 mt-1">
                         {item.size && <span>Size: {item.size}</span>}
                         {item.size && item.color && <span> • </span>}
                         {item.color && <span>Color: {item.color}</span>}
-                      </div>
+                      </div> */}
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.size, item.color)}
+                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                             className="p-1 hover:bg-gray-200 rounded"
                           >
                             <Minus className="h-3 w-3" />
@@ -116,7 +114,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                           <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
                           <button
                             disabled={item.quantity >= item.stock}
-                            onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             className="p-1 hover:bg-gray-200 rounded"
                           >
                             <Plus className="h-3 w-3" />
@@ -125,7 +123,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                         <div className="flex items-center space-x-2">
                           <span className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
                           <button
-                            onClick={() => removeItem(item.id, item.size, item.color)}
+                            onClick={() => removeItem(item.id)}
                             className="p-1 text-red-500 hover:bg-red-50 rounded"
                           >
                             <Trash2 className="h-4 w-4" />

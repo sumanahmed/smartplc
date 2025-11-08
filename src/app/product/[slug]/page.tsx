@@ -39,28 +39,28 @@ export default function ProductPage() {
     fetchProduct();
   }, [params.slug]);
 
-  const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
-    const existingItem = cartItems.find(item => item.id === product.id);
+  // const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
+  //   const existingItem = cartItems.find(item => item.id === product.id);
 
-    if (existingItem) {
-      setCartItems(cartItems.map(item =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + quantity }
-          : item
-      ));
-    } else {
-      setCartItems([...cartItems, {
-        id: product.id,
-        name: product.name,
-        purchase_price: product.purchase_price,
-        quantity,
-        image: product.image,
-        brand: product.brand,
-        description: product.description,
-        category: product.category
-      }]);
-    }
-  };
+  //   if (existingItem) {
+  //     setCartItems(cartItems.map(item =>
+  //       item.id === product.id
+  //         ? { ...item, quantity: item.quantity + quantity }
+  //         : item
+  //     ));
+  //   } else {
+  //     setCartItems([...cartItems, {
+  //       id: product.id,
+  //       name: product.name,
+  //       purchase_price: product.purchase_price,
+  //       quantity,
+  //       image: product.image,
+  //       brand: product.brand,
+  //       description: product.description,
+  //       category: product.category
+  //     }]);
+  //   }
+  // };
 
   const handleAddToWishlist = (product: any) => {
     if (!wishlistItems.some(item => item.id === product.id)) {
@@ -88,7 +88,7 @@ export default function ProductPage() {
   return (
     <ProductDetails
       product={product}
-      onAddToCart={handleAddToCart}
+     // onAddToCart={handleAddToCart}
       onAddToWishlist={handleAddToWishlist}
     />
   );

@@ -22,11 +22,11 @@ interface CategorySectionProps {
   title: string;
   slug: string;
   products: Product[];
-  onAddToCart: (product: Product) => void;
+  //onAddToCart: (product: Product) => void;
   onAddToWishlist: (product: Product) => void;
 }
 
-const CategorySection: React.FC<CategorySectionProps> = ({ title, slug, products, onAddToCart, onAddToWishlist }) => {
+const CategorySection: React.FC<CategorySectionProps> = ({ title, slug, products, onAddToWishlist }) => {
   // const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // const scroll = (direction: 'left' | 'right') => {
@@ -73,7 +73,6 @@ const CategorySection: React.FC<CategorySectionProps> = ({ title, slug, products
           <ProductCard
             key={product.id}
             product={product}
-            onAddToCart={onAddToCart}
             onAddToWishlist={onAddToWishlist}
           />
         ))}
