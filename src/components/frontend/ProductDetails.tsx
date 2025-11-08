@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Heart, ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw } from 'lucide-react';
 import Image from 'next/image';
-// import { Product } from '@/data/products';
+import { useCartStore } from '@/store/useCartStore';
 
 interface Product {
   id: number;
@@ -12,27 +12,41 @@ interface Product {
   image: string;
   category?: { id: number; name: string };
   brand?: { id: number; name: string };
-  stock: boolean;
+  stock: number;
   description: string;
   specification: string;
 }
 
 interface ProductDetailsProps {
   product: Product;
-  onAddToCart: (product: Product, quantity: number, purchase_price?: string, color?: string) => void;
+  // onAddToCart: (product: Product, quantity: number, purchase_price?: string, color?: string) => void;
   onAddToWishlist: (product: Product) => void;
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, onAddToWishlist }) => {
+const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToWishlist }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+   const addItem = useCartStore(state => state.addToCart);
 
-  const handleAddToCart = () => {
-    onAddToCart(product, quantity, selectedSize, selectedColor);
-  };
+  // const handleAddToCart = () => {
+  //   onAddToCart(product, quantity, selectedSize, selectedColor);
+  // };
+
+ const handleAddToCart = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  addItem({
+    id: product.id,
+    ///slug: product.slug,
+    name: product.name,
+    price: product.purchase_price,
+    image: product.image,
+    stock: product.stock ? product.stock : 0,
+    quantity: 1,
+  });
+};
 
   const handleWishlistClick = () => {
     setIsWishlisted(!isWishlisted);
@@ -178,7 +192,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToCart, o
                 <Plus className="h-4 w-4" />
               </button>
             </div>
-            
+            {/* <input type="number" value={quantity} min={1} onChange={e => setQuantity(Math.max(1, Number(e.target.value)))} /> */}
             <button
               onClick={handleAddToCart}
               disabled={!product.stock}

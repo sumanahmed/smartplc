@@ -5,7 +5,10 @@ import { Search, ShoppingCart, Heart, User, ChevronDown } from 'lucide-react';
 import CartSidebar from './CartSidebar';
 import AuthModal from './AuthModal'; // Import AuthModal
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore  } from "@/store/useCartStore";
 import Swal from "sweetalert2";
+import { useModalStore } from "@/store/modalStore";
+
 
 import Image from 'next/image';
 import logo from '../../../public/logo.png'
@@ -51,13 +54,15 @@ const [isMenuOpen, setIsMenuOpen] = useState(false);
 const [isLoggedIn, setIsLoggedIn] = useState(true);
 const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // State for AuthModal
+const { isAuthModalOpen, openAuthModal, closeAuthModal, setIsAuthModalOpen } = useModalStore();
+
 const [searchQuery, setSearchQuery] = useState('');
-const [isCartOpen, setIsCartOpen] = useState(false);
 const [cartItems, setCartItems] = useState<CartItem[]>([]);
 const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
 const { isAuthenticated, user, logout } = useAuthStore();
 const [categories, setCategories] = useState<any[]>([]);
+const { items } = useCartStore(); 
+const [isCartOpen, setIsCartOpen] = useState(false);
 
 useEffect(() => {
   const loadCategories = async () => {
@@ -280,7 +285,7 @@ useEffect(() => {
             ) : (
               <button
                 className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors focus:outline-none"
-                onClick={() => setIsAuthModalOpen(true)} // Open AuthModal
+                onClick={openAuthModal} // Open AuthModal
                 aria-label="Login"
               >
                 <User className="h-5 w-5" />
@@ -298,34 +303,38 @@ useEffect(() => {
               </span>
             </button>
             
-            <button 
-              onClick={onCartClick}
-              className="relative text-gray-700 hover:text-gray-900 transition-colors"
+           <button
+              className="relative"
+              onClick={() => setIsCartOpen(true)}
             >
               <ShoppingCart className="h-5 w-5" />
-              {cartItems.length > 0 && (
+              {items.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  {cartItems.length}
+                  {items.length}
                 </span>
               )}
-            </button>
+          </button>
           </div>
         </div>
       </div>
 
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={closeAuthModal}
       />
 
-      <CartSidebar 
+      {/* <CartSidebar 
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         cartItems={cartItems}
         onUpdateQuantity={handleUpdateCartQuantity}
         onRemoveItem={handleRemoveFromCart}
         // onCheckout={handleCheckout}
-      />
+      /> */}
+
+      <CartSidebar
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)} />
     </header>
   );
 };

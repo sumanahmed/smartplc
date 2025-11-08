@@ -39,28 +39,28 @@ export default function Home() {
     loadData();
   }, []);
 
-  const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
-    const existingItem = cartItems.find(item =>
-      item.id === product.id && item.size === size && item.color === color
-    );
-    if (existingItem) {
-      setCartItems(cartItems.map(item =>
-        item.id === product.id && item.size === size && item.color === color
-          ? { ...item, quantity: item.quantity + quantity }
-          : item
-      ));
-    } else {
-      setCartItems([...cartItems, {
-        id: product.id,
-        name: product.name,
-        price: product.purchase_price,
-        quantity,
-        image: product.image,
-        size,
-        color
-      }]);
-    }
-  };
+  // const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
+  //   const existingItem = cartItems.find(item =>
+  //     item.id === product.id && item.size === size && item.color === color
+  //   );
+  //   if (existingItem) {
+  //     setCartItems(cartItems.map(item =>
+  //       item.id === product.id && item.size === size && item.color === color
+  //         ? { ...item, quantity: item.quantity + quantity }
+  //         : item
+  //     ));
+  //   } else {
+  //     setCartItems([...cartItems, {
+  //       id: product.id,
+  //       name: product.name,
+  //       price: product.purchase_price,
+  //       quantity,
+  //       image: product.image,
+  //       size,
+  //       color
+  //     }]);
+  //   }
+  // };
 
   const handleAddToWishlist = (product: any) => {
     if (!wishlistItems.some(item => item.id === product.id)) {
@@ -78,7 +78,6 @@ export default function Home() {
             title={category.name}
             slug={category.slug}
             products={categoryProducts[category.slug] || []}
-            onAddToCart={handleAddToCart}
             onAddToWishlist={handleAddToWishlist}
           />
         ))}

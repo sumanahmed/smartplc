@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useCartStore } from '@/store/useCartStore';
 
 interface Product {
   id: number;
@@ -13,19 +14,20 @@ interface Product {
   image: string;
   category: { id: number; name: string };
   brand?: { id: number; name: string };
-  stock: boolean;
+  stock: number;
 }
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (product: Product) => void;
+  // onAddToCart: (product: Product) => void;
   onAddToWishlist: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddToWishlist }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToWishlist }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const router = useRouter();
+  const addItem = useCartStore(state => state.addToCart);
 
   // 🩵 Toggle wishlist
   const handleWishlistClick = (e: React.MouseEvent) => {
@@ -35,10 +37,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart, onAddTo
   };
 
   // 🩵 Add to cart (don’t trigger navigation)
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent redirect
-    onAddToCart(product);
-  };
+  // const handleAddToCart = (e: React.MouseEvent) => {
+  //   e.stopPropagation(); // Prevent redirect
+  //   onAddToCart(product);
+  // };
+
+ const handleAddToCart = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  addItem({
+    id: product.id,
+    //slug: product.slug,
+    name: product.name,
+    price: product.purchase_price,
+    image: product.image,
+    stock: product.stock ? product.stock : 0,
+    quantity: 1,
+  });
+};
 
   // 🩵 Navigate to product details page
   const handleProductClick = () => {

@@ -16,9 +16,9 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
     loadProducts();
   }, [slug]);
 
-  const handleAddToCart = (product: any) => {
-    console.log("Add to cart:", product);
-  };
+  // const handleAddToCart = (product: any) => {
+  //   console.log("Add to cart:", product);
+  // };
 
   const handleAddToWishlist = (product: any) => {
     console.log("Add to wishlist:", product);
@@ -32,7 +32,6 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
           <ProductCard
             key={product.id}
             product={product}
-            onAddToCart={handleAddToCart}
             onAddToWishlist={handleAddToWishlist}
           />
         ))}
