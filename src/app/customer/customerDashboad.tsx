@@ -10,6 +10,8 @@ import PaymentMethods from '@/components/frontend/customer/PaymentMethods';
 import type { WishlistItem } from '@/components/frontend/customer/Wishlist';
 import Wishlist from '@/components/frontend/customer/Wishlist';
 import { useAuthStore } from "@/store/authStore";
+import toast from "react-hot-toast";
+import { updateCustomerProfile } from "@/lib/userApi";
 
 // interface CustomerProfileProps {
 //     user: {
@@ -48,7 +50,7 @@ import { useAuthStore } from "@/store/authStore";
 // }
 
 const CustomerPage = () => {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const u: any = user;
     // const [user, setUserDetails] = useState({
     //     firstName : 'Rahat',
@@ -57,7 +59,8 @@ const CustomerPage = () => {
     //     phone: '01290333333',
     //     avatar: '',
     //     joinDate: 'January 2024'
-    // })
+  // })
+   const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingAddress, setEditingAddress] = useState<string | null>(null);
     const [showAddAddress, setShowAddAddress] = useState(false);
@@ -370,20 +373,53 @@ const CustomerPage = () => {
     
     const tabs = [
         { id: 'profile', label: 'Profile', icon: User },
-        { id: 'addresses', label: 'Addresses', icon: MapPin },
-        { id: 'payments', label: 'Payment Methods', icon: CreditCard },
+        //{ id: 'addresses', label: 'Addresses', icon: MapPin },
+        //{ id: 'payments', label: 'Payment Methods', icon: CreditCard },
         { id: 'orders', label: 'Order History', icon: Package },
-        { id: 'wishlist', label: 'Wishlist', icon: Heart },
+        //{ id: 'wishlist', label: 'Wishlist', icon: Heart },
         { id: 'change_password', label: 'Change Password', icon: Settings }
     ]
 
-    const handleSaveProfile = () => {
-        setProfileData({
-          ...user,
-          ...profileData
+    // const handleSaveProfile = () => {
+    //     setProfileData({
+    //       ...user,
+    //       ...profileData
+    //     });
+    //     setIsEditing(false);
+  //   };
+  
+    const handleSaveProfile = async () => {
+      try {
+        setLoading(true);
+        // call your API function from lib/userApi.ts
+        const updatedUser = await updateCustomerProfile(u?.id, {
+          name: `${profileData.firstName} ${profileData.lastName}`,
+          first_name: profileData.firstName,
+          last_name: profileData.lastName,
+          email: profileData.email,
+          phone: profileData.phone,
         });
+
+        toast.success("Profile updated successfully!");
+
+        // update the local state with new info
+        setProfileData({
+          firstName: updatedUser.first_name,
+          lastName: updatedUser.last_name,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+        });
+
+        setUser(updatedUser); 
+
         setIsEditing(false);
-      };
+      } catch (error) {
+        console.error("Update failed:", error);
+        toast.error("Something went wrong while saving profile!");
+      }finally {
+        setLoading(false); // hide overlay
+      }
+    };
     
       const handleAddAddress = () => {
         const newId = (addresses.length + 1).toString();
@@ -509,7 +545,35 @@ const CustomerPage = () => {
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
     const renderProfileTab = () => (
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        {loading && (
+          <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center space-y-3">
+              <svg
+                className="animate-spin h-8 w-8 text-blue-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+              <p className="text-gray-700 font-medium">Updating profile...</p>
+            </div>
+          </div>
+        )}
+
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
             <button
@@ -605,12 +669,6 @@ const CustomerPage = () => {
           )}
         </div>
       );
-    
-      
-    
-      
-
-      
     
   return (
     

@@ -96,6 +96,14 @@ export const updateUser = async (
   return res.data.data;
 };
 
+export const updateCustomerProfile = async (
+  id: number,
+  payload: CreatePayload
+): Promise<User> => {
+  const res = await api.put(`/api/users-profile-update/${id}`, payload);
+  return res.data.data;
+};
+
 export const deleteUser = async (id: number): Promise<{ message?: string }> => {
   const res = await api.delete(`/api/users/${id}`);
   return res.data;
