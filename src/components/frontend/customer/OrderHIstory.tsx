@@ -1,6 +1,7 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { Eye } from 'lucide-react';
+import { getCustomerOrders } from "@/lib/ordersApi";
 
 type OrderItem = { name: string };
 
@@ -15,11 +16,36 @@ export type OrderRow = {
 };
 
 type OrderHistoryProps = {
-	orders: OrderRow[];
+	//orders: OrderRow[];
 	onViewDetails: (orderId: string) => void;
 };
 
-const OrderHistory: React.FC<OrderHistoryProps> = ({ orders, onViewDetails }) => {
+const OrderHistory: React.FC<OrderHistoryProps> = ({ onViewDetails }) => {
+	const [orders, setOrders] = useState<OrderRow[]>([]);
+	const [loading, setLoading] = useState(true);
+	useEffect(() => {
+		const fetchOrders = async () => {
+			try {
+				const response = await getCustomerOrders(); // your Laravel API
+				console.log(response.data.data)
+				setOrders(response.data.data); // assuming API returns { data: [...] }
+			} catch (error) {
+				console.error("Failed to fetch orders:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchOrders();
+	}, []);
+	if (loading) return <p className="text-center text-gray-500">Loading orders...</p>;
+
+	if (!orders.length)
+		return (
+		<div className="bg-white rounded-lg shadow-md p-6 text-center">
+			<h2 className="text-2xl font-bold text-gray-900 mb-4">Order History</h2>
+			<p className="text-gray-500 text-lg">You have no order history yet.</p>
+		</div>
+		);
 	return (
 		<div className="bg-white rounded-lg shadow-md p-6">
 			<h2 className="text-2xl font-bold text-gray-900 mb-4">Order History</h2>

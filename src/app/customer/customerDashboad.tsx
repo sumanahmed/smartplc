@@ -388,38 +388,38 @@ const CustomerPage = () => {
     //     setIsEditing(false);
   //   };
   
-    const handleSaveProfile = async () => {
-      try {
-        setLoading(true);
-        // call your API function from lib/userApi.ts
-        const updatedUser = await updateCustomerProfile(u?.id, {
-          name: `${profileData.firstName} ${profileData.lastName}`,
-          first_name: profileData.firstName,
-          last_name: profileData.lastName,
-          email: profileData.email,
-          phone: profileData.phone,
-        });
+      const handleSaveProfile = async () => {
+        try {
+          setLoading(true);
+          // call your API function from lib/userApi.ts
+          const updatedUser = await updateCustomerProfile(u?.id, {
+            name: `${profileData.firstName} ${profileData.lastName}`,
+            first_name: profileData.firstName,
+            last_name: profileData.lastName,
+            email: profileData.email,
+            phone: profileData.phone,
+          });
 
-        toast.success("Profile updated successfully!");
+          toast.success("Profile updated successfully!");
 
-        // update the local state with new info
-        setProfileData({
-          firstName: updatedUser.first_name,
-          lastName: updatedUser.last_name,
-          email: updatedUser.email,
-          phone: updatedUser.phone,
-        });
+          // update the local state with new info
+          setProfileData({
+            firstName: updatedUser.first_name,
+            lastName: updatedUser.last_name,
+            email: updatedUser.email,
+            phone: updatedUser.phone,
+          });
 
-        setUser(updatedUser); 
+          setUser(updatedUser); 
 
-        setIsEditing(false);
-      } catch (error) {
-        console.error("Update failed:", error);
-        toast.error("Something went wrong while saving profile!");
-      }finally {
-        setLoading(false); // hide overlay
-      }
-    };
+          setIsEditing(false);
+        } catch (error) {
+          console.error("Update failed:", error);
+          toast.error("Something went wrong while saving profile!");
+        }finally {
+          setLoading(false); // hide overlay
+        }
+      };
     
       const handleAddAddress = () => {
         const newId = (addresses.length + 1).toString();
