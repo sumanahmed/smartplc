@@ -3,7 +3,8 @@
 import React, { useState } from 'react'
 import { User, MapPin, CreditCard, Package, Heart, Settings, Edit2, Save, X, Eye, Link } from 'lucide-react';
 import Image from 'next/image';
-import OrderDetails from '@/components/frontend/customer/OrderDetails';
+// import OrderDetails from '@/components/frontend/customer/OrderDetails';
+import OrderDetails, { type Order } from '@/components/frontend/customer/OrderDetails';
 import Address from '@/components/frontend/customer/Address';
 import OrderHistory from '@/components/frontend/customer/OrderHIstory';
 import PaymentMethods from '@/components/frontend/customer/PaymentMethods';
@@ -12,45 +13,12 @@ import Wishlist from '@/components/frontend/customer/Wishlist';
 import { useAuthStore } from "@/store/authStore";
 import toast from "react-hot-toast";
 import { updateCustomerProfile } from "@/lib/userApi";
-
-// interface CustomerProfileProps {
-//     user: {
-//       id: string;
-//       firstName: string;
-//       lastName: string;
-//       email: string;
-//       phone: string;
-//       avatar?: string;
-//       joinDate: string;
-//     };
-//     addresses: Array<{
-//       id: string;
-//       type: 'home' | 'work' | 'other';
-//       name: string;
-//       address: string;
-//       city: string;
-//       state: string;
-//       zipCode: string;
-//       isDefault: boolean;
-//     }>;
-//     paymentMethods: Array<{
-//       id: string;
-//       type: 'card' | 'paypal';
-//       last4?: string;
-//       brand?: string;
-//       expiryDate?: string;
-//       isDefault: boolean;
-//     }>;
-//     onUpdateProfile: (data: any) => void;
-//     onAddAddress: (address: any) => void;
-//     onUpdateAddress: (id: string, address: any) => void;
-//     onDeleteAddress: (id: string) => void;
-//     onAddPaymentMethod: (method: any) => void;
-//     onDeletePaymentMethod: (id: string) => void;
-// }
+import { getOrderDetails } from "@/lib/ordersApi";
 
 const CustomerPage = () => {
   const { user, setUser } = useAuthStore();
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+ const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const u: any = user;
     // const [user, setUserDetails] = useState({
     //     firstName : 'Rahat',
@@ -527,13 +495,17 @@ const CustomerPage = () => {
         });
       };
 
-      const handleViewOrderDetails = (orderId: string) => {
-        const order = orders.find(o => o.id === orderId);
-        if (order) {
-          setSelectedOrder(order);
+      const handleViewOrderDetails = async (orderId: number) => {
+        try {
+          const apiOrder = await getOrderDetails(orderId); // res.data.data
+          // Map apiOrder into your Order type if needed, or shape API to match Order.
+          setSelectedOrder(apiOrder as Order);
           setShowOrderDetails(true);
+        } catch (e) {
+          console.error("Failed to load order details", e);
         }
       };
+      
 
       const handleBackToOrders = () => {
         setShowOrderDetails(false);
@@ -541,8 +513,8 @@ const CustomerPage = () => {
       };
 
     const [activeTab, setActiveTab] = useState ('profile');
-    const [showOrderDetails, setShowOrderDetails] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    // const [showOrderDetails, setShowOrderDetails] = useState(false);
+    // const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
     const renderProfileTab = () => (
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -731,7 +703,8 @@ const CustomerPage = () => {
             />
           )}
           {activeTab === 'orders' && !showOrderDetails && (
-            <OrderHistory orders={orders as any} onViewDetails={handleViewOrderDetails} />
+            // <OrderHistory orders={orders as any} onViewDetails={handleViewOrderDetails} />
+            <OrderHistory onViewDetails={handleViewOrderDetails} />
           )}
           {activeTab === 'orders' && showOrderDetails && selectedOrder && (
             <OrderDetails order={selectedOrder} onBack={handleBackToOrders} />
