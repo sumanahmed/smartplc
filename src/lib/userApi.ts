@@ -111,10 +111,19 @@ export const deleteUser = async (id: number): Promise<{ message?: string }> => {
 
 // export const toggleBrandStatus = async (id: number): Promise<Brand> => {
 //   const res = await api.delete(`/api/brands/${id}/toggle-status`);
-//   return res.data.data; 
+//   return res.data.data;
 // };
 
 // export const getAllBrand = async (): Promise<Brand> => {
 //   const res = await api.get(`/api/all-brand`);
 //   return res.data.data;
 // };
+
+export const changePassword = async (oldPassword: string, newPassword: string, confirmPassword: string) => {
+  const response = await api.post("/api/customer/change-password", {
+    old_password: oldPassword,
+    new_password: newPassword,
+    new_password_confirmation: confirmPassword,
+  });
+  return response.data;
+};

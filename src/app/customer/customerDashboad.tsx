@@ -1,7 +1,7 @@
 
 'use client';
 import React, { useState } from 'react'
-import { User, MapPin, CreditCard, Package, Heart, Settings, Edit2, Save, X, Eye, Link } from 'lucide-react';
+import { User, MapPin, CreditCard, Package, Heart, Settings, Edit2, Save, X, Eye, Link, EyeOff  } from 'lucide-react';
 import Image from 'next/image';
 // import OrderDetails from '@/components/frontend/customer/OrderDetails';
 import OrderDetails, { type Order } from '@/components/frontend/customer/OrderDetails';
@@ -12,7 +12,7 @@ import type { WishlistItem } from '@/components/frontend/customer/Wishlist';
 import Wishlist from '@/components/frontend/customer/Wishlist';
 import { useAuthStore } from "@/store/authStore";
 import toast from "react-hot-toast";
-import { updateCustomerProfile } from "@/lib/userApi";
+import { updateCustomerProfile, changePassword } from "@/lib/userApi";
 import { getOrderDetails } from "@/lib/ordersApi";
 
 const CustomerPage = () => {
@@ -511,7 +511,41 @@ const CustomerPage = () => {
       const handleBackToOrders = () => {
         setShowOrderDetails(false);
         setSelectedOrder(null);
-      };
+  };
+
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  
+   const handleSubmit = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill all fields");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New password and confirm password do not match");
+      return;
+     }
+
+    try {
+      setLoading(true);
+      const res = await changePassword(oldPassword, newPassword, confirmPassword);
+      toast.success(res.message);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      console.error(err);
+      const msg = err.response?.data?.message || "Failed to change password";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
     const [activeTab, setActiveTab] = useState ('profile');
     // const [showOrderDetails, setShowOrderDetails] = useState(false);
@@ -715,22 +749,71 @@ const CustomerPage = () => {
           )}
           {activeTab === 'change_password' && (
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Change Password</h2>
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='col-span-2'>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Old Password</label>
-                  <input type="password" placeholder="Old Password" className="w-full p-2 border border-gray-300 rounded-md" />
+               <h2 className="text-xl font-bold text-gray-900 mb-4">Change Password</h2>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Old Password */}
+                <div className='relative col-span-2'>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Old Password</label>
+                  <input
+                    type={showOld ? "text" : "password"}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOld(!showOld)}
+                    className="absolute right-2 top-8 text-gray-500"
+                  >
+                    {showOld ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                  <input type="password" placeholder="New Password" className="w-full p-2 border border-gray-300 rounded-md" />
+
+                {/* New Password */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                  <input
+                    type={showNew ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNew(!showNew)}
+                    className="absolute right-2 top-8 text-gray-500"
+                  >
+                    {showNew ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                  <input type="password" placeholder="Confirm Password" className="w-full p-2 border border-gray-300 rounded-md" />
+
+                {/* Confirm Password */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                  <input
+                    type={showConfirm ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    className="absolute right-2 top-8 text-gray-500"
+                  >
+                    {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
-              <button className="w-full p-2 bg-blue-600 text-white rounded-md mt-4 hover:bg-blue-700 transition-colors cursor-pointer">Change Password</button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className={`w-full py-2 px-4 rounded-md text-white mt-4 ${
+                    loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                  }`}
+                >
+                  {loading ? "Changing..." : "Change Password"}
+                </button>
             </div>
           )}
         </div>
