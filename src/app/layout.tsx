@@ -27,13 +27,32 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// export default function RootLayout({
+//   children,
+// }: {
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <html lang="en">
+//       <body className="bg-gray-100 text-gray-900">
+//         <FrontendLayout>
+//           {children}
+//         </FrontendLayout>
+//         <ToastProvider />
+//       </body>
+//     </html>
+//   );
+// }
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <meta
+          name="google-site-verification"
+          content="gCKrWFeim0Zr1rHCVKSXNXjAbt2rdUNorZ_y3ycv9W0"
+        />
+      </head>
+
       <body className="bg-gray-100 text-gray-900">
         <FrontendLayout>
           {children}
