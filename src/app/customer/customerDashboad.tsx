@@ -1,54 +1,24 @@
 
 'use client';
 import React, { useState } from 'react'
-import { User, MapPin, CreditCard, Package, Heart, Settings, Edit2, Save, X, Eye, Link } from 'lucide-react';
+import { User, MapPin, CreditCard, Package, Heart, Settings, Edit2, Save, X, Eye, Link, EyeOff  } from 'lucide-react';
 import Image from 'next/image';
-import OrderDetails from '@/components/frontend/customer/OrderDetails';
+// import OrderDetails from '@/components/frontend/customer/OrderDetails';
+import OrderDetails, { type Order } from '@/components/frontend/customer/OrderDetails';
 import Address from '@/components/frontend/customer/Address';
 import OrderHistory from '@/components/frontend/customer/OrderHIstory';
 import PaymentMethods from '@/components/frontend/customer/PaymentMethods';
 import type { WishlistItem } from '@/components/frontend/customer/Wishlist';
 import Wishlist from '@/components/frontend/customer/Wishlist';
 import { useAuthStore } from "@/store/authStore";
-
-// interface CustomerProfileProps {
-//     user: {
-//       id: string;
-//       firstName: string;
-//       lastName: string;
-//       email: string;
-//       phone: string;
-//       avatar?: string;
-//       joinDate: string;
-//     };
-//     addresses: Array<{
-//       id: string;
-//       type: 'home' | 'work' | 'other';
-//       name: string;
-//       address: string;
-//       city: string;
-//       state: string;
-//       zipCode: string;
-//       isDefault: boolean;
-//     }>;
-//     paymentMethods: Array<{
-//       id: string;
-//       type: 'card' | 'paypal';
-//       last4?: string;
-//       brand?: string;
-//       expiryDate?: string;
-//       isDefault: boolean;
-//     }>;
-//     onUpdateProfile: (data: any) => void;
-//     onAddAddress: (address: any) => void;
-//     onUpdateAddress: (id: string, address: any) => void;
-//     onDeleteAddress: (id: string) => void;
-//     onAddPaymentMethod: (method: any) => void;
-//     onDeletePaymentMethod: (id: string) => void;
-// }
+import toast from "react-hot-toast";
+import { updateCustomerProfile, changePassword } from "@/lib/userApi";
+import { getOrderDetails } from "@/lib/ordersApi";
 
 const CustomerPage = () => {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+ const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const u: any = user;
     // const [user, setUserDetails] = useState({
     //     firstName : 'Rahat',
@@ -57,7 +27,8 @@ const CustomerPage = () => {
     //     phone: '01290333333',
     //     avatar: '',
     //     joinDate: 'January 2024'
-    // })
+  // })
+   const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingAddress, setEditingAddress] = useState<string | null>(null);
     const [showAddAddress, setShowAddAddress] = useState(false);
@@ -370,19 +341,52 @@ const CustomerPage = () => {
     
     const tabs = [
         { id: 'profile', label: 'Profile', icon: User },
-        { id: 'addresses', label: 'Addresses', icon: MapPin },
-        { id: 'payments', label: 'Payment Methods', icon: CreditCard },
+        //{ id: 'addresses', label: 'Addresses', icon: MapPin },
+        //{ id: 'payments', label: 'Payment Methods', icon: CreditCard },
         { id: 'orders', label: 'Order History', icon: Package },
-        { id: 'wishlist', label: 'Wishlist', icon: Heart },
+        //{ id: 'wishlist', label: 'Wishlist', icon: Heart },
         { id: 'change_password', label: 'Change Password', icon: Settings }
     ]
 
-    const handleSaveProfile = () => {
-        setProfileData({
-          ...user,
-          ...profileData
-        });
-        setIsEditing(false);
+    // const handleSaveProfile = () => {
+    //     setProfileData({
+    //       ...user,
+    //       ...profileData
+    //     });
+    //     setIsEditing(false);
+  //   };
+  
+      const handleSaveProfile = async () => {
+        try {
+          setLoading(true);
+          // call your API function from lib/userApi.ts
+          const updatedUser = await updateCustomerProfile(u?.id, {
+            name: `${profileData.firstName} ${profileData.lastName}`,
+            first_name: profileData.firstName,
+            last_name: profileData.lastName,
+            email: profileData.email,
+            phone: profileData.phone,
+          });
+
+          toast.success("Profile updated successfully!");
+
+          // update the local state with new info
+          setProfileData({
+            firstName: updatedUser.first_name,
+            lastName: updatedUser.last_name,
+            email: updatedUser.email,
+            phone: updatedUser.phone,
+          });
+
+          setUser(updatedUser); 
+
+          setIsEditing(false);
+        } catch (error) {
+          console.error("Update failed:", error);
+          toast.error("Something went wrong while saving profile!");
+        }finally {
+          setLoading(false); // hide overlay
+        }
       };
     
       const handleAddAddress = () => {
@@ -491,25 +495,92 @@ const CustomerPage = () => {
         });
       };
 
-      const handleViewOrderDetails = (orderId: string) => {
-        const order = orders.find(o => o.id === orderId);
-        if (order) {
-          setSelectedOrder(order);
+      const handleViewOrderDetails = async (orderId: number) => {
+        try {
+          const apiOrder = await getOrderDetails(orderId); // res.data.data
+          console.log('apiOrderDetails', apiOrder)
+          // Map apiOrder into your Order type if needed, or shape API to match Order.
+          setSelectedOrder(apiOrder as Order);
           setShowOrderDetails(true);
+        } catch (e) {
+          console.error("Failed to load order details", e);
         }
       };
+      
 
       const handleBackToOrders = () => {
         setShowOrderDetails(false);
         setSelectedOrder(null);
-      };
+  };
+
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  
+   const handleSubmit = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill all fields");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New password and confirm password do not match");
+      return;
+     }
+
+    try {
+      setLoading(true);
+      const res = await changePassword(oldPassword, newPassword, confirmPassword);
+      toast.success(res.message);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      console.error(err);
+      const msg = err.response?.data?.message || "Failed to change password";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
     const [activeTab, setActiveTab] = useState ('profile');
-    const [showOrderDetails, setShowOrderDetails] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    // const [showOrderDetails, setShowOrderDetails] = useState(false);
+    // const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
     const renderProfileTab = () => (
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        {loading && (
+          <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center space-y-3">
+              <svg
+                className="animate-spin h-8 w-8 text-blue-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+              <p className="text-gray-700 font-medium">Updating profile...</p>
+            </div>
+          </div>
+        )}
+
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
             <button
@@ -606,12 +677,6 @@ const CustomerPage = () => {
         </div>
       );
     
-      
-    
-      
-
-      
-    
   return (
     
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -673,7 +738,8 @@ const CustomerPage = () => {
             />
           )}
           {activeTab === 'orders' && !showOrderDetails && (
-            <OrderHistory orders={orders as any} onViewDetails={handleViewOrderDetails} />
+            // <OrderHistory orders={orders as any} onViewDetails={handleViewOrderDetails} />
+            <OrderHistory onViewDetails={handleViewOrderDetails} />
           )}
           {activeTab === 'orders' && showOrderDetails && selectedOrder && (
             <OrderDetails order={selectedOrder} onBack={handleBackToOrders} />
@@ -683,22 +749,71 @@ const CustomerPage = () => {
           )}
           {activeTab === 'change_password' && (
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Change Password</h2>
-              <div className='grid grid-cols-2 gap-4'>
-                <div className='col-span-2'>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Old Password</label>
-                  <input type="password" placeholder="Old Password" className="w-full p-2 border border-gray-300 rounded-md" />
+               <h2 className="text-xl font-bold text-gray-900 mb-4">Change Password</h2>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Old Password */}
+                <div className='relative col-span-2'>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Old Password</label>
+                  <input
+                    type={showOld ? "text" : "password"}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOld(!showOld)}
+                    className="absolute right-2 top-8 text-gray-500"
+                  >
+                    {showOld ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                  <input type="password" placeholder="New Password" className="w-full p-2 border border-gray-300 rounded-md" />
+
+                {/* New Password */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                  <input
+                    type={showNew ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNew(!showNew)}
+                    className="absolute right-2 top-8 text-gray-500"
+                  >
+                    {showNew ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                  <input type="password" placeholder="Confirm Password" className="w-full p-2 border border-gray-300 rounded-md" />
+
+                {/* Confirm Password */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                  <input
+                    type={showConfirm ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    className="absolute right-2 top-8 text-gray-500"
+                  >
+                    {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
-              <button className="w-full p-2 bg-blue-600 text-white rounded-md mt-4 hover:bg-blue-700 transition-colors cursor-pointer">Change Password</button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className={`w-full py-2 px-4 rounded-md text-white mt-4 ${
+                    loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                  }`}
+                >
+                  {loading ? "Changing..." : "Change Password"}
+                </button>
             </div>
           )}
         </div>
