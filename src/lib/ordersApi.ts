@@ -9,3 +9,21 @@ export const getOrderDetails = async (id: number) => {
   const res = await api.get(`/api/customer/orders/${id}`);
   return res.data.data;
 };
+
+export const downloadInvoice = async (orderId: number, orderNumber: string) => {
+  try {
+    const response = await api.get(`/api/orders/${orderId}/invoice`, {
+      responseType: "blob", // important
+    });
+
+    // create URL
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `invoice-${orderNumber}.pdf`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Invoice download error:", error);
+  }
+};

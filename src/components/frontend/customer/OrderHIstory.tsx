@@ -15,7 +15,7 @@ type ApiOrder = {
   created_at: string;
   status: string;
   payment_status: string;
-  total: number | string;
+  total_amount: number | string;
   items: ApiOrderItem[];
 };
 
@@ -26,7 +26,7 @@ export type OrderRow = {
   items: { name: string }[];
   status: "delivered" | "processing" | "shipped" | "cancelled" | string;
   paymentStatus: "Paid" | "Pending" | "Failed" | string;
-  total: number;
+  total_amount: number;
 };
 
 type OrderHistoryProps = {
@@ -40,7 +40,7 @@ const mapApiOrderToRow = (order: ApiOrder): OrderRow => ({
   items: (order.items || []).map((i) => ({ name: i.name })),
   status: order.status,
   paymentStatus: order.payment_status as OrderRow["paymentStatus"],
-  total: Number(order.total || 0),
+  total_amount: Number(order.total_amount || 0),
 });
 
 const OrderHistory: React.FC<OrderHistoryProps> = ({ onViewDetails }) => {
@@ -53,8 +53,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ onViewDetails }) => {
       try {
         setLoading(true);
         setError(null);
-
-        const apiData = await getCustomerOrders(); // res.data.data
+        const apiData = await getCustomerOrders();
         const mapped = (apiData as ApiOrder[]).map(mapApiOrderToRow);
         setOrders(mapped);
       } catch (err: any) {
@@ -109,9 +108,9 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ onViewDetails }) => {
 						<tr>
 							<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Number</th>
 							<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-							<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+							{/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th> */}
 							<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-							<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
+							{/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th> */}
 							<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
 							<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
 						</tr>
@@ -121,18 +120,18 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ onViewDetails }) => {
 							<tr key={order.id}>
 								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.orderNumber}</td>
 								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(order.date).toLocaleDateString()}</td>
-								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.items.map((item) => item.name).join(", ")}</td>
+								{/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.items.map((item) => item.name).join(", ")}</td> */}
 								<td className="px-6 py-4 whitespace-nowrap">
 									<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${order.status === 'delivered' ? 'bg-green-100 text-green-800' : order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' : order.status === 'shipped' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>
 										{order.status.charAt(0).toUpperCase() + order.status.slice(1)}
 									</span>
 								</td>
-								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+								{/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 									<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-800' : order.paymentStatus === 'Pending' ? 'bg-yellow-100 text-yellow-800' : order.paymentStatus === 'Failed' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
 										{order.paymentStatus}
 									</span>
-								</td>
-								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">৳{order.total.toFixed(2)}</td>
+								</td> */}
+								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">৳ {order.total_amount.toFixed(2)}</td>
 								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 									<button onClick={() => onViewDetails(order.id)} className="text-blue-600 hover:text-blue-900 transition-colors">
 										<Eye className="h-5 w-5" />

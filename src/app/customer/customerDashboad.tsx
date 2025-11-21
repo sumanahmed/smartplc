@@ -498,6 +498,7 @@ const CustomerPage = () => {
       const handleViewOrderDetails = async (orderId: number) => {
         try {
           const apiOrder = await getOrderDetails(orderId); // res.data.data
+          console.log('apiOrderDetails', apiOrder)
           // Map apiOrder into your Order type if needed, or shape API to match Order.
           setSelectedOrder(apiOrder as Order);
           setShowOrderDetails(true);
