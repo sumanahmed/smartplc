@@ -34,7 +34,7 @@ import BrandPage from './components/Brand/BrandListPage';
 import ProductPage from './components/Product/ProductListPage';
 import CustomerPage from './components/CustomerPage';
 import UserPage from './components/User/AllUserPage';
-import OrderDetailsPage from './components/OrderDetailsPage';
+import OrderDetailsPage from './components/OrderInformation/OrderList';
 
 const DashboardPage = () => {
   return (
