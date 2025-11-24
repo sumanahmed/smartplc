@@ -1,187 +1,171 @@
-import { Plus, Eye, Edit, Trash2 } from 'lucide-react';
+"use client";
 
-interface TableData {
+import React, { useEffect, useState } from "react";
+import { Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { getAdminOrders } from "@/lib/ordersApi";
+
+type ApiOrderItem = {
   id: number;
   name: string;
-  category: string;
-  buyingPrice: number;
-  sellingPrice: number;
-  status: 'In Stock' | 'Out of Stock' | 'Discontinued';
-}
+};
 
-const DataTablePage = () => {
-  // Sample data
-  const data: TableData[] = [
-    {
-      id: 1,
-      name: 'Wireless Headphones',
-      category: 'Electronics',
-      buyingPrice: 45.00,
-      sellingPrice: 79.99,
-      status: 'In Stock'
-    },
-    {
-      id: 2,
-      name: 'Coffee Maker',
-      category: 'Appliances',
-      buyingPrice: 85.00,
-      sellingPrice: 149.99,
-      status: 'In Stock'
-    },
-    {
-      id: 3,
-      name: 'Running Shoes',
-      category: 'Sports',
-      buyingPrice: 60.00,
-      sellingPrice: 99.99,
-      status: 'Out of Stock'
-    },
-    {
-      id: 4,
-      name: 'Laptop Stand',
-      category: 'Accessories',
-      buyingPrice: 25.00,
-      sellingPrice: 39.99,
-      status: 'In Stock'
-    },
-    {
-      id: 5,
-      name: 'Bluetooth Speaker',
-      category: 'Electronics',
-      buyingPrice: 35.00,
-      sellingPrice: 59.99,
-      status: 'Discontinued'
-    },
-    {
-      id: 6,
-      name: 'Desk Lamp',
-      category: 'Furniture',
-      buyingPrice: 30.00,
-      sellingPrice: 49.99,
-      status: 'In Stock'
-    },
-    {
-      id: 7,
-      name: 'Water Bottle',
-      category: 'Sports',
-      buyingPrice: 12.00,
-      sellingPrice: 19.99,
-      status: 'In Stock'
-    },
-    {
-      id: 8,
-      name: 'Phone Case',
-      category: 'Accessories',
-      buyingPrice: 8.00,
-      sellingPrice: 14.99,
-      status: 'Out of Stock'
-    }
-  ];
+type ApiOrder = {
+  id: number;
+  order_number: string;
+  created_at: string;
+  status: string;
+  payment_status: string;
+  total_amount: number | string;
+  items: ApiOrderItem[];
+};
 
-  const getStatusBadge = (status: string) => {
-    const statusStyles = {
-      'In Stock': 'bg-green-100 text-green-800',
-      'Out of Stock': 'bg-red-100 text-red-800',
-      'Discontinued': 'bg-gray-100 text-gray-800'
-    };
-    
-    return (
-      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusStyles[status as keyof typeof statusStyles]}`}>
-        {status}
-      </span>
-    );
+export type OrderRow = {
+  id: number;
+  orderNumber: string;
+  date: string;
+  items: { name: string }[];
+  status: "delivered" | "processing" | "shipped" | "cancelled" | string;
+  paymentStatus: "Paid" | "Pending" | "Failed" | string;
+  total_amount: number;
+};
+
+const mapApiOrderToRow = (order: ApiOrder): OrderRow => ({
+  id: order.id,
+  orderNumber: order.order_number,
+  date: order.created_at,
+  items: (order.items || []).map((i) => ({ name: i.name })),
+  status: order.status,
+  paymentStatus: order.payment_status as OrderRow["paymentStatus"],
+  total_amount: Number(order.total_amount || 0),
+});
+
+const OrderList = () => {
+  const router = useRouter();
+
+  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 👉 view button click = go to order details page
+  const onViewDetails = (orderId: number) => {
+    router.push(`/admin/components/OrderInformation/${orderId}`);
   };
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const apiData = await getAdminOrders();
+        const mapped = (apiData as ApiOrder[]).map(mapApiOrderToRow);
+        setOrders(mapped);
+      } catch (err: any) {
+        console.error("Failed to fetch orders:", err);
+        setError(err?.message || "Failed to load orders.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  if (loading) {
+    return (
+      <p className="text-center text-gray-500 py-6">Loading orders...</p>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6 text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Order List
+        </h2>
+        <p className="text-red-500 text-sm mb-2">{error}</p>
+        <p className="text-gray-500 text-sm">
+          Please refresh the page and try again.
+        </p>
+      </div>
+    );
+  }
+
+  if (!orders.length) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6 text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Order List
+        </h2>
+        <p className="text-gray-500 text-lg">
+          No orders found.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6">
-      <div className="w-full mx-auto">
-        <div className="bg-white rounded-lg shadow-md">
-          {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">All Order Details List</h2>
-              {/* <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                <Plus size={20} className="mr-2" />
-                Add New
-              </button> */}
-            </div>
-          </div>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">Order List</h2>
 
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Buying Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Selling Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {data.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {item.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {item.category}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ${item.buyingPrice.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ${item.sellingPrice.toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(item.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-                          title="View Details"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        <button
-                          className="text-yellow-600 hover:text-yellow-900 p-1 rounded hover:bg-yellow-50"
-                          title="Edit"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Number</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
 
-        </div>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {orders.map((order) => (
+              <tr key={order.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {order.orderNumber}
+                </td>
+
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(order.date).toLocaleDateString()}
+                </td>
+
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      order.status === "delivered"
+                        ? "bg-green-100 text-green-800"
+                        : order.status === "processing"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : order.status === "shipped"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  </span>
+                </td>
+
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  ৳ {order.total_amount.toFixed(2)}
+                </td>
+
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <button
+                    onClick={() => onViewDetails(order.id)}
+                    className="text-blue-600 hover:text-blue-900"
+                  >
+                    <Eye className="h-5 w-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 };
 
-export default DataTablePage;
+export default OrderList;
