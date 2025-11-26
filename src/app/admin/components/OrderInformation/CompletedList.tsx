@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { getAdminOrders, updateOrderStatus } from "@/lib/ordersApi";
+import { getOrdersCompleted, updateOrderStatus } from "@/lib/ordersApi";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
@@ -82,7 +82,7 @@ const OrderList = () => {
       try {
         setLoading(true);
         setError(null);
-        const apiData = await getAdminOrders();
+        const apiData = await getOrdersCompleted();
         const mapped = (apiData as ApiOrder[]).map(mapApiOrderToRow);
         setOrders(mapped);
       } catch (err: any) {
@@ -127,7 +127,7 @@ const OrderList = () => {
 
   if (loading) {
     return (
-      <p className="text-center text-gray-500 py-6">Loading orders...</p>
+      <p className="text-center text-gray-500 py-6">Loading Completed orders...</p>
     );
   }
 
@@ -135,7 +135,7 @@ const OrderList = () => {
     return (
       <div className="bg-white rounded-lg shadow-md p-6 text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Order List
+          Completed Order List
         </h2>
         <p className="text-red-500 text-sm mb-2">{error}</p>
         <p className="text-gray-500 text-sm">
@@ -160,7 +160,7 @@ const OrderList = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Order List</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">Completed Order List</h2>
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -205,18 +205,6 @@ const OrderList = () => {
                     >
                       <Eye className="h-5 w-5" />
                     </button>
-
-                    {/* 🟡 Status Change Dropdown */}
-                    <select
-                      value={order.status}
-                      onChange={(e) => handleChangeStatus(order, e.target.value)}
-                      className="border rounded px-2 py-1 text-sm"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="processing">Processing</option>
-                      <option value="completed">Complete</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
 
                   </td>
               </tr>

@@ -10,6 +10,21 @@ export const getAdminOrders = async () => {
   return res.data.data;
 };
 
+export const getOrdersProcessing = async () => {
+  const res = await api.get("/api/admin/orders-processing");
+  return res.data.data;
+};
+
+export const getOrdersCompleted = async () => {
+  const res = await api.get("/api/admin/orders-completed");
+  return res.data.data;
+};
+
+export const getOrdersCancelled = async () => {
+  const res = await api.get("/api/admin/orders-cancelled");
+  return res.data.data;
+};
+
 export const getOrderDetails = async (id: number) => {
   const res = await api.get(`/api/customer/orders/${id}`);
   return res.data.data;
@@ -54,4 +69,13 @@ export const AdminDownloadInvoice = async (orderId: number, orderNumber: string)
   } catch (error) {
     console.error("Invoice download error:", error);
   }
+};
+
+
+export const updateOrderStatus = async (orderId: number, status: string) => {
+  const res = await api.put(`/api/admin/orders/${orderId}/status`, {
+    status: status,
+  });
+
+  return res.data;
 };
