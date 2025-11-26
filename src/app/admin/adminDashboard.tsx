@@ -17,7 +17,10 @@ import {
   Menu,
   X,
   ChevronRight,
-  LogOut
+  LogOut,
+  MessageCircleX,
+  BadgeCheck,
+  PlaneTakeoff
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -34,7 +37,10 @@ import BrandPage from './components/Brand/BrandListPage';
 import ProductPage from './components/Product/ProductListPage';
 import CustomerPage from './components/CustomerPage';
 import UserPage from './components/User/AllUserPage';
-import OrderDetailsPage from './components/OrderDetailsPage';
+import OrderDetailsPage from './components/OrderInformation/OrderList';
+import OrderProcessingPage from './components/OrderInformation/ProcessingList';
+import OrderCompletedPage from './components/OrderInformation/CompletedList';
+import OrderCancelledPage from './components/OrderInformation/CancelledList';
 
 const DashboardPage = () => {
   return (
@@ -88,6 +94,9 @@ const AdminDashboard = () => {
     { id: "customer-table", label: "Customer", icon: FileUser, component: CustomerPage },
     { id: "user-table", label: "User", icon: FileUser, component: UserPage },
     { id: "order-details-table", label: "Order Details", icon: ListOrdered, component: OrderDetailsPage },
+    { id: "order-processing", label: "Order Processing List", icon: PlaneTakeoff, component: OrderProcessingPage },
+    { id: "order-completed", label: "Order Completed List", icon: BadgeCheck, component: OrderCompletedPage },
+    { id: "order-Cancelled", label: "Order Cancelled List", icon: MessageCircleX , component: OrderCancelledPage },
     { id: "logout", label: "Logout", icon: LogOut, action: handleLogout }, // No component needed
   ];
 
