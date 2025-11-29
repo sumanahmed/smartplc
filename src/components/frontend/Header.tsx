@@ -51,9 +51,9 @@ const Header: React.FC = () => {
     });
   };
 
-  const handleLoginSuccess = () => {
-    setIsAuthModalOpen(false);
-  };
+  // const handleLoginSuccess = () => {
+  //   setIsAuthModalOpen(false);
+  // };
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -168,7 +168,7 @@ const Header: React.FC = () => {
       </div>
 
       {/* Auth modal */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} onSuccess={handleLoginSuccess} />
+      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />
 
       {/* Cart sidebar */}
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
