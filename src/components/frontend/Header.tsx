@@ -1,340 +1,177 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Search, ShoppingCart, Heart, User, ChevronDown } from 'lucide-react';
-import CartSidebar from './CartSidebar';
-import AuthModal from './AuthModal'; // Import AuthModal
-import { useAuthStore } from "@/store/authStore";
-import { useCartStore  } from "@/store/useCartStore";
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Search, ShoppingCart, Heart, User } from "lucide-react";
+import Image from "next/image";
 import Swal from "sweetalert2";
+
+import CartSidebar from "./CartSidebar";
+import AuthModal from "./AuthModal";
+import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/useCartStore";
 import { useModalStore } from "@/store/modalStore";
 
-
-import Image from 'next/image';
-import logo from '../../../public/logo.png'
-import { fetchAllActiveCategories } from "@/lib/homeApi";
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  size?: string;
-  color?: string;
-}
-
-interface Order {
-  id: string;
-  status: 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  orderDate: string;
-  estimatedDelivery: string;
-  total: number;
-  items: CartItem[];
-  shippingAddress: any;
-  trackingNumber?: string;
-  timeline: Array<{
-    status: string;
-    date: string;
-    location?: string;
-    description: string;
-  }>;
-}
-
-interface WishlistItem {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-}
+import logo from "../../../public/logo.png";
 
 const Header: React.FC = () => {
-const router = useRouter();
-const [isMenuOpen, setIsMenuOpen] = useState(false);
-const [isLoggedIn, setIsLoggedIn] = useState(true);
-const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-const { isAuthModalOpen, openAuthModal, closeAuthModal, setIsAuthModalOpen } = useModalStore();
+  const router = useRouter();
 
-const [searchQuery, setSearchQuery] = useState('');
-const [cartItems, setCartItems] = useState<CartItem[]>([]);
-const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
-const { isAuthenticated, user, logout } = useAuthStore();
-const [categories, setCategories] = useState<any[]>([]);
-const { items } = useCartStore(); 
-const [isCartOpen, setIsCartOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuthStore();
+  const { items } = useCartStore();
+  const { isAuthModalOpen, openAuthModal, closeAuthModal, setIsAuthModalOpen } =
+    useModalStore();
 
-useEffect(() => {
-  const loadCategories = async () => {
-    try {
-      const res = await fetchAllActiveCategories();
-      setCategories(res); // backend response e `data: []` ase
-    } catch (error) {
-      console.error("Failed to load categories", error);
-    }
-  };
-  loadCategories();
-}, []);
-
-  const onCartClick = () => {
-    setIsCartOpen(true);
-  };
-
-  const handleAddToCart = (product: any, quantity: number = 1, size?: string, color?: string) => {
-    const existingItem = cartItems.find(
-      (item) => item.id === product.id && item.size === size && item.color === color
-    );
-
-    if (existingItem) {
-      setCartItems(
-        cartItems.map((item) =>
-          item.id === product.id && item.size === size && item.color === color
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        )
-      );
-    } else {
-      setCartItems([
-        ...cartItems,
-        {
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          quantity,
-          image: product.image,
-          size,
-          color,
-        },
-      ]);
-    }
-  };
-
-  const handleUpdateCartQuantity = (id: number, quantity: number, size?: string, color?: string) => {
-    if (quantity === 0) {
-      handleRemoveFromCart(id, size, color);
-      return;
-    }
-    
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id && item.size === size && item.color === color
-          ? { ...item, quantity }
-          : item
-      )
-    );
-  };
-
-  const handleRemoveFromCart = (id: number, size?: string, color?: string) => {
-    setCartItems(
-      cartItems.filter((item) => !(item.id === id && item.size === size && item.color === color))
-    );
-  };
-
-  const handleAddToWishlist = (product: WishlistItem) => {
-    const isAlreadyInWishlist = wishlistItems.some((item) => item.id === product.id);
-    if (!isAlreadyInWishlist) {
-      setWishlistItems([...wishlistItems, product]);
-    }
-  };
-
-  const handleCheckout = () => {
-    setIsCartOpen(false);
-  };
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
 
   const showCustomerProfile = () => {
-    router.push(`/customer`)
-  }
+    router.push("/customer");
+  };
+
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+  };
+
+  const handleLogoutClick = () => {
+    Swal.fire({
+      title: "Success!",
+      text: "You are successfully logged out",
+      icon: "success",
+      confirmButtonText: "OK",
+      timer: 2000,
+      timerProgressBar: true,
+      willClose: () => {
+        logout();
+        router.push("/");
+      },
+    });
+  };
 
   const handleLoginSuccess = () => {
-    setIsLoggedIn(true);
     setIsAuthModalOpen(false);
   };
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div area-label='Top Header' className='bg-blue-600'>
-        <div className='container mx-auto'>
-          <div className='flex items-center justify-between px-4 py-2 text-white'>
-            <p className='text-sm'>Free shipping on orders over BDT.1000</p>
-            <nav>
-              <ul className='flex items-center space-x-4 text-sm'>
-                <li><a href="/blog" className='text-white'>Blog</a></li>
-                <li><a href="/" className='text-white'>Order Tracking</a></li>
-                <li><a href="/" className='text-white'>Contact Us</a></li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        {/* TOP ROW: Logo + Search + Icons */}
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-gray-900">
-                <a href="/">
-                  <Image src={logo} className='w-40' alt="Smart PLC BD"/>
-                </a>
-              </h1>
-            </div>
+            <button
+              onClick={() => router.push("/")}
+              className="flex items-center focus:outline-none"
+            >
+              <Image
+                src={logo}
+                alt="Smart PLC BD"
+                className="w-40 h-auto"
+                priority
+              />
+            </button>
           </div>
 
-          {/* Search Bar */}
-          <div className="flex-1 max-w-2xl mx-8">
-            <div className="relative flex items-center h-10">
-              <div className="relative">
-                <button
-                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                  className="flex items-center px-4 h-10 border border-r-0 rounded-l-md bg-gray-50 hover:bg-gray-100"
-                >
-                  <span className="text-sm font-medium">All Categories</span>
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </button>
-                
-                {isCategoriesOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    {categories.map((category) => (
-                      <button
-                        key={category.id}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                        onClick={() => {
-                          setIsCategoriesOpen(false);
-                          router.push(`/category/${category.slug}`);
-                          // Add category selection logic here if needed
-                        }}
-                      >
-                        {category.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <div className="relative flex-1">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-10 px-4 border border-gray-300 rounded-r-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors placeholder-gray-400"
-                  aria-label="Search products"
-                />
-                <button
-                  className="absolute right-0 top-0 h-10 px-4 bg-blue-600 text-white hover:bg-blue-700 focus:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-r-md transition-colors"
-                  aria-label="Search"
-                  onClick={() => {
-                    // Add search logic here
-                    console.log('Searching for:', searchQuery);
-                  }}
-                >
-                  <Search className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* User Actions */}
-          <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-4">
-          <div className="relative" role="navigation">
-            {isAuthenticated ? (   // ✅ use Zustand state instead of isLoggedIn
-              <>
-                <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors focus:outline-none"
-                  aria-label="Toggle user menu"
-                  aria-expanded={isUserMenuOpen}
-                >
-                  <User className="h-5 w-5" />
-                  <span className="hidden sm:inline text-sm">Account</span>
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                {isUserMenuOpen && (
-                  <div className="user-menu absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                    <button
-                      onClick={() => {
-                        showCustomerProfile();
-                        setIsUserMenuOpen(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors"
-                    >
-                      My Profile
-                    </button>
-                    <button
-                      onClick={() => {
-                        Swal.fire({
-                          title: 'Success!',
-                          text: 'You are successfully logged out',
-                          icon: 'success',
-                          confirmButtonText: 'OK',
-                          timer: 2000,
-                          timerProgressBar: true,
-                          willClose: () => {
-                            logout();          // clear auth
-                            router.push('/');  // redirect home
-                          },
-                        });
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 transition-colors"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
+          {/* Search bar (no All Categories) */}
+          <div className="flex-1 max-w-3xl mx-6">
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                placeholder="I'm shopping for ..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-11 rounded-full border border-gray-300 px-4 pr-12 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              />
               <button
-                className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 transition-colors focus:outline-none"
-                onClick={openAuthModal} // Open AuthModal
-                aria-label="Login"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition-colors focus:outline-none focus:ring-0"
+                aria-label="Search"
+                onClick={handleSearch}
               >
-                <User className="h-5 w-5" />
-                <span className="hidden sm:inline text-sm">Login</span>
+                <Search className="h-4 w-4" />
               </button>
-            )}
+            </div>
           </div>
-        </div>
 
-            
+          {/* Icons: Wishlist + Cart + Account */}
+          <div className="flex items-center space-x-5">
+            {/* Wishlist */}
             <button className="relative text-gray-700 hover:text-gray-900 transition-colors">
               <Heart className="h-5 w-5" />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[11px]">
                 {wishlistItems.length}
               </span>
             </button>
-            
-           <button
-              className="relative"
+
+            {/* Cart */}
+            <button
+              className="relative text-gray-700 hover:text-gray-900 transition-colors"
               onClick={() => setIsCartOpen(true)}
             >
               <ShoppingCart className="h-5 w-5" />
               {items.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                <span className="absolute -top-2 -right-2 bg-green-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[11px]">
                   {items.length}
                 </span>
               )}
-          </button>
+            </button>
+
+            {/* Account / Login */}
+            <div className="relative">
+              {isAuthenticated ? (
+                <>
+                  <button
+                    onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                    className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 text-sm"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="hidden sm:inline">Account</span>
+                  </button>
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                      <button
+                        onClick={() => {
+                          showCustomerProfile();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        My Profile
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          handleLogoutClick();
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <button
+                  className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 text-sm"
+                  onClick={openAuthModal}
+                  aria-label="Login"
+                >
+                  <User className="h-5 w-5" />
+                  <span className="hidden sm:inline">Login</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={closeAuthModal}
-      />
+      {/* Auth modal */}
+      <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} onSuccess={handleLoginSuccess} />
 
-      {/* <CartSidebar 
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onUpdateQuantity={handleUpdateCartQuantity}
-        onRemoveItem={handleRemoveFromCart}
-        // onCheckout={handleCheckout}
-      /> */}
-
-      <CartSidebar
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)} />
+      {/* Cart sidebar */}
+      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   );
 };
