@@ -90,12 +90,12 @@ export default function Home() {
                   >
                     Home
                   </button>
-                  <button
+                  {/* <button
                     onClick={() => goTo("/shop")}
                     className="font-medium text-gray-700 hover:text-gray-900 hover:border-gray-900 border-b-2 border-transparent pb-0.5"
                   >
                     Shop
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => goTo("/about-us")}
                     className="font-medium text-gray-700 hover:text-gray-900 hover:border-gray-900 border-b-2 border-transparent pb-0.5"
