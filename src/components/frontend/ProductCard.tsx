@@ -84,7 +84,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToWishlist }) =
 
         {/* Out of stock overlay */}
         {!product.stock && (
-          <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
             <span className="text-white font-semibold">Out of Stock</span>
           </div>
         )}
