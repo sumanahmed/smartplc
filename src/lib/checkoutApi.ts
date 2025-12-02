@@ -37,6 +37,7 @@ export interface CheckoutPayload {
   address: string;
   city: string;
   postal_code: string;
+  country: string;
   payment_method: 'cod' | 'bkash' | 'nagad' | 'card';
   items: {
     id: number;
