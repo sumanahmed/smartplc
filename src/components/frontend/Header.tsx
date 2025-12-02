@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingCart, Heart, User } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, Home } from "lucide-react";
 import Image from "next/image";
 import Swal from "sweetalert2";
 
@@ -74,6 +74,13 @@ const Header: React.FC = () => {
               />
             </button>
           </div>
+
+          <button
+            onClick={() => router.push("/")}
+            className="flex items-center text-gray-700 hover:text-gray-900 transition-colors"
+          >
+            <Home className="h-6 w-6" />
+          </button>
 
           {/* Search bar (no All Categories) */}
           <div className="flex-1 max-w-3xl mx-6">
