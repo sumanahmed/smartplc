@@ -45,6 +45,9 @@ interface DashboardStats {
   total_orders: number;
   total_customers: number;
   total_products: number;
+  total_in_stock: number;
+  total_out_of_stock: number;
+  low_stock_products: { id: number; name: string; stock: number }[];
   today_sales: number;
   today_orders: number;
   orders_status_counts: OrderStatusCounts;
@@ -142,6 +145,9 @@ export default function DashboardPage() {
     total_orders,
     total_customers,
     total_products,
+    total_in_stock,
+    total_out_of_stock,
+    low_stock_products,
     today_sales,
     today_orders,
     orders_status_counts,
@@ -161,7 +167,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <DashboardCard
           title="Total Sales"
           value={`৳${total_sales.toLocaleString()}`}
@@ -196,6 +202,22 @@ export default function DashboardPage() {
           color="orange"
           trend="down"
           trendText="Active products"
+        />
+        <DashboardCard
+          title="In Stock"
+          value={total_in_stock}
+          Icon={Package}
+          color="green"
+          trend="up"
+          trendText="Available"
+        />
+        <DashboardCard
+          title="Out of Stock"
+          value={total_out_of_stock}
+          Icon={Package}
+          color="green"
+          trend="down"
+          trendText="Needs restock"
         />
       </div>
 
@@ -259,6 +281,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <RecentOrdersTable recent_orders={recent_orders} />
         <TopProductsList top_products={top_products} />
+         {/* <LowStockProducts products={low_stock_products} /> */}
       </div>
     </div>
   );
@@ -335,6 +358,27 @@ const OrderStatus: React.FC<OrderStatusProps> = ({ label, count, color }) => {
     </div>
   );
 };
+
+// const LowStockProducts: React.FC<{ products: { id: number; name: string; stock: number }[] }> = ({ products }) => (
+//   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+//     <h2 className="text-sm font-semibold text-gray-700 uppercase mb-4">
+//       Low Stock Products
+//     </h2>
+
+//     {products.length === 0 ? (
+//       <p className="text-sm text-gray-400">All products have sufficient stock.</p>
+//     ) : (
+//       <div className="space-y-3">
+//         {products.map((p) => (
+//           <div key={p.id} className="flex justify-between border p-3 rounded-lg">
+//             <span className="font-medium text-gray-900">{p.name}</span>
+//             <span className="text-sm text-red-600 font-semibold">{p.stock} left</span>
+//           </div>
+//         ))}
+//       </div>
+//     )}
+//   </div>
+// );
 
 const RecentOrdersTable: React.FC<RecentOrdersTableProps> = ({
   recent_orders,
