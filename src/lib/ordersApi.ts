@@ -15,6 +15,11 @@ export const getOrdersProcessing = async () => {
   return res.data.data;
 };
 
+export const getOrdersDelivered = async () => {
+  const res = await api.get("/api/admin/orders-deliverd");
+  return res.data.data;
+};
+
 export const getOrdersCompleted = async () => {
   const res = await api.get("/api/admin/orders-completed");
   return res.data.data;

@@ -20,6 +20,7 @@ import { getAdminDashboardList } from "@/lib/dashboardApi";
 interface OrderStatusCounts {
   pending: number;
   processing: number;
+  delivered: number;
   completed: number;
   cancelled: number;
 }
@@ -57,7 +58,7 @@ interface DashboardStats {
 
 type Trend = "up" | "down";
 type CardColor = "blue" | "green" | "purple" | "orange";
-type StatusColor = "yellow" | "blue" | "green" | "red";
+type StatusColor = "yellow" | "blue" | "green" | "red" | "orange";
 
 interface DashboardCardProps {
   title: string;
@@ -265,6 +266,11 @@ export default function DashboardPage() {
             color="blue"
           />
           <OrderStatus
+            label="Delivered"
+            count={orders_status_counts.delivered}
+            color="orange"
+          />
+          <OrderStatus
             label="Completed"
             count={orders_status_counts.completed}
             color="green"
@@ -346,6 +352,7 @@ const OrderStatus: React.FC<OrderStatusProps> = ({ label, count, color }) => {
     blue: "bg-blue-400",
     green: "bg-green-500",
     red: "bg-red-500",
+    orange: "bg-orange-500",
   };
 
   return (
