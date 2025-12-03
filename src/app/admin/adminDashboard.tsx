@@ -39,6 +39,7 @@ import CustomerPage from './components/CustomerPage';
 import UserPage from './components/User/AllUserPage';
 import OrderDetailsPage from './components/OrderInformation/OrderList';
 import OrderProcessingPage from './components/OrderInformation/ProcessingList';
+import OrderDeliveredPage from './components/OrderInformation/DeliveredList';
 import OrderCompletedPage from './components/OrderInformation/CompletedList';
 import OrderCancelledPage from './components/OrderInformation/CancelledList';
 import DashboardPage from './components/Dashboard/DashboardPage';
@@ -96,6 +97,7 @@ const AdminDashboard = () => {
     { id: "user-table", label: "User", icon: FileUser, component: UserPage },
     { id: "order-details-table", label: "Order Details", icon: ListOrdered, component: OrderDetailsPage },
     { id: "order-processing", label: "Order Processing List", icon: PlaneTakeoff, component: OrderProcessingPage },
+    { id: "order-delivered", label: "Order Delivered List", icon: PlaneTakeoff, component: OrderDeliveredPage },
     { id: "order-completed", label: "Order Completed List", icon: BadgeCheck, component: OrderCompletedPage },
     { id: "order-Cancelled", label: "Order Cancelled List", icon: MessageCircleX , component: OrderCancelledPage },
     { id: "logout", label: "Logout", icon: LogOut, action: handleLogout }, // No component needed
