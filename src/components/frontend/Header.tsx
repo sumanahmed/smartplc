@@ -13,27 +13,44 @@ import { useCartStore } from "@/store/useCartStore";
 import { useModalStore } from "@/store/modalStore";
 
 import logo from "../../../public/logo.png";
+import { searchProducts, SuggestProduct } from "@/lib/productsApi";
 
 const Header: React.FC = () => {
   const router = useRouter();
 
   const { isAuthenticated, logout } = useAuthStore();
   const { items } = useCartStore();
-  const { isAuthModalOpen, openAuthModal, closeAuthModal, setIsAuthModalOpen } =
-    useModalStore();
+  const { isAuthModalOpen, openAuthModal, closeAuthModal } = useModalStore();
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+  const [wishlistItems] = useState<any[]>([]);
+
+  // suggestion related
+  const [suggestions, setSuggestions] = useState<SuggestProduct[]>([]);
+  const [isSuggestLoading, setIsSuggestLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const showCustomerProfile = () => {
     router.push("/customer");
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!searchQuery.trim()) return;
-    router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+
+    try {
+      setIsSuggestLoading(true);
+      const data = await searchProducts(searchQuery, 5);
+      setSuggestions(data);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSuggestions([]);
+      setShowSuggestions(true);
+    } finally {
+      setIsSuggestLoading(false);
+    }
   };
 
   const handleLogoutClick = () => {
@@ -51,9 +68,45 @@ const Header: React.FC = () => {
     });
   };
 
-  // const handleLoginSuccess = () => {
-  //   setIsAuthModalOpen(false);
-  // };
+  // input e type korlei live suggestion (auto)
+  const handleSearchChange = async (value: string) => {
+    setSearchQuery(value);
+
+    if (!value.trim()) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    try {
+      setIsSuggestLoading(true);
+      const data = await searchProducts(value, 5);
+      setSuggestions(data);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error("Suggestion error:", error);
+      setSuggestions([]);
+      setShowSuggestions(false);
+    } finally {
+      setIsSuggestLoading(false);
+    }
+  };
+
+  // Enter press korle same handleSearch
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
+
+  // suggestion e click → product details
+  const handleSuggestionClick = (product: SuggestProduct) => {
+    if (!product.slug) return;
+    setShowSuggestions(false);
+    setSearchQuery("");
+    router.push(`/product/${product.slug}`);
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -82,14 +135,15 @@ const Header: React.FC = () => {
             <Home className="h-6 w-6" />
           </button>
 
-          {/* Search bar (no All Categories) */}
-          <div className="flex-1 max-w-3xl mx-6">
+          {/* SEARCH + SUGGESTIONS */}
+          <div className="flex-1 max-w-3xl mx-6 relative">
             <div className="relative flex items-center">
               <input
                 type="text"
                 placeholder="I'm shopping for ..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 className="w-full h-11 rounded-full border border-gray-300 px-4 pr-12 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
               />
               <button
@@ -100,6 +154,56 @@ const Header: React.FC = () => {
                 <Search className="h-4 w-4" />
               </button>
             </div>
+
+            {/* SUGGESTION LIST */}
+            {showSuggestions && (
+              <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto z-50">
+                {isSuggestLoading && (
+                  <div className="px-4 py-2 text-xs text-gray-500">
+                    Searching...
+                  </div>
+                )}
+
+                {!isSuggestLoading && suggestions.length === 0 && (
+                  <div className="px-4 py-2 text-xs text-gray-500">
+                    No product found
+                  </div>
+                )}
+
+                {!isSuggestLoading &&
+                  suggestions.map((product) => (
+                    <button
+                      key={product.id}
+                      type="button"
+                      onClick={() => handleSuggestionClick(product)}
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-gray-50 text-left"
+                    >
+                      {/* image */}
+                      <div className="relative w-10 h-10 bg-gray-100 rounded">
+                         <img
+                            src={
+                              product.image.startsWith("http")
+                                ? product.image
+                                : `${process.env.NEXT_PUBLIC_API_BASE_URL}/storage/products/${product.image}`
+                            }
+                            alt={product.name}
+                            className="object-contain p-1"
+                          />
+                      </div>
+
+                      {/* name + price */}
+                      <div className="flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-gray-800 line-clamp-1">
+                          {product.name}
+                        </p>
+                        <p className="text-xs text-green-700 font-semibold mt-0.5">
+                          ৳ {product.purchase_price}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            )}
           </div>
 
           {/* Icons: Wishlist + Cart + Account */}

@@ -12,6 +12,17 @@ export interface Product {
   updated_at?: string;
 }
 
+export interface SuggestProduct {
+  id: number;
+  name: string;
+  slug: string;
+  purchase_price: string;
+  image: string;
+  status: ProductStatus;
+  created_at?: string;
+  updated_at?: string;
+}
+
 /**
  * Laravel paginator meta shape (common fields).
  * Adjust if your backend uses different keys.
@@ -124,4 +135,19 @@ export const deleteProduct = async (id: number): Promise<{ message?: string }> =
 export const toggleProductStatus = async (id: number): Promise<Product> => {
   const res = await api.delete(`/api/product/${id}/toggle-status`);
   return res.data.data; 
+};
+
+export const searchProducts = async (
+  query: string,
+  limit = 5
+): Promise<SuggestProduct[]> => {
+  if (!query.trim()) return [];
+
+  const res = await api.get("/api/search-products", {
+    params: {
+      search: query.trim(),
+      limit,
+    },
+  });
+  return res.data?.data || [];
 };
