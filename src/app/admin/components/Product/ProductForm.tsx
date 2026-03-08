@@ -21,6 +21,9 @@ export interface Product {
   stock: number;
   description?: string;
   specification?: string;
+  meta_title?: string;
+  meta_keyword?: string;
+  meta_description?: string;
   image?: string;         
   image_url?: string;   
   status?: ProductStatus;
@@ -52,6 +55,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, categories, brands, 
     stock: initial?.stock ? String(initial.stock) : "",
     description: initial?.description ?? "",
     specification: initial?.specification ?? "",
+    meta_title: initial?.meta_title ?? "",
+    meta_keyword: initial?.meta_keyword ?? "",
+    meta_description: initial?.meta_description ?? "",
     image: null as File | string | null, // File for new upload, string for existing filename/url
   });
 
@@ -145,6 +151,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, categories, brands, 
     fd.append("stock", String(form.stock));
     fd.append("description", form.description ?? "");
     fd.append("specification", form.specification ?? "");
+    fd.append("meta_title", form.meta_title ?? "");
+    fd.append("meta_keyword", form.meta_keyword ?? "");
+    fd.append("meta_description", form.meta_description ?? "");
     // append image if it's a File
     if (form.image instanceof File) {
       fd.append("image", form.image);
@@ -234,6 +243,26 @@ const ProductForm: React.FC<ProductFormProps> = ({ initial, categories, brands, 
             <p className="text-red-500 text-sm mt-1">{errors.specification}</p>
           )}
         </div>
+
+        <div className="col-span-6">
+          <label className="block text-sm font-medium mb-1">Meta Title</label>
+          <input name="meta_title" value={form.meta_title} onChange={handleChange} className="w-full border rounded px-3 py-2" disabled={saving}/>
+          {errors.meta_title && <p className="text-red-500 text-sm mt-1">{errors.meta_title}</p>}
+        </div>
+
+        <div className="col-span-6">
+          <label className="block text-sm font-medium mb-1">Meta Keyword</label>
+          <input name="meta_keyword" value={form.meta_keyword} onChange={handleChange} className="w-full border rounded px-3 py-2" disabled={saving}/>
+          {errors.meta_keyword && <p className="text-red-500 text-sm mt-1">{errors.meta_keyword}</p>}
+        </div>
+
+        <div className="col-span-12">
+          <label className="block text-sm font-medium mb-1">Meta Description</label>
+          <textarea name="meta_description" value={form.meta_description} onChange={handleChange} rows={4} className="w-full border rounded px-3 py-2" disabled={saving}/>
+          {errors.meta_description && <p className="text-red-500 text-sm mt-1">{errors.meta_description}</p>}
+        </div>
+
+
 
         <div className="col-span-12">
           <label className="block text-sm font-medium mb-1">Product Image {initial?.id ? "(leave blank to keep current)" : ""}</label>
