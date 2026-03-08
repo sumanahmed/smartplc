@@ -95,7 +95,31 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
             className="prose"
             dangerouslySetInnerHTML={{ __html: product.specification || "<p>No specification added.</p>" }}
           />
-        </div>
+          </div>
+           {product.meta_title && (
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Meta Title</h4>
+                <p className="text-gray-700 leading-relaxed border p-3 rounded-lg bg-gray-50 shadow-sm">
+                  {product.meta_title}
+                </p>
+            </div>
+            )}
+           {product.meta_keyword && (
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Meta Keyword</h4>
+                <p className="text-gray-700 leading-relaxed border p-3 rounded-lg bg-gray-50 shadow-sm">
+                  {product.meta_keyword}
+                </p>
+            </div>
+            )}
+          {product.meta_description && (
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-1">Meta Keyword</h4>
+                <p className="text-gray-700 leading-relaxed border p-3 rounded-lg bg-gray-50 shadow-sm">
+                  {product.meta_description}
+                </p>
+            </div>
+            )}
         </div>
       </div>
     </Modal>

@@ -14,6 +14,9 @@ interface Product {
   brand?: { id: number; name: string };
   stock: number;
   description: string;
+  meta_title: string;
+  meta_keyword: string;
+  meta_description: string;
   specification: string;
 }
 
@@ -228,6 +231,36 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onAddToWishlis
               <div
                 className="prose"
                 dangerouslySetInnerHTML={{ __html: product.specification || "<p>No specification added.</p>" }}
+            />
+            </div>
+          )}
+
+          {product.meta_title && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Meta Title</h3>
+              <div
+                className="prose"
+                dangerouslySetInnerHTML={{ __html: product.meta_title || "<p>No Meta Title added.</p>" }}
+            />
+            </div>
+          )}
+
+          {product.meta_keyword && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Meta Keyword</h3>
+              <div
+                className="prose"
+                dangerouslySetInnerHTML={{ __html: product.meta_keyword || "<p>No Meta Keyword.</p>" }}
+            />
+            </div>
+          )}
+
+          {product.meta_description && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Meta Description</h3>
+              <div
+                className="prose"
+                dangerouslySetInnerHTML={{ __html: product.meta_description || "<p>No Meta Keyword.</p>" }}
             />
             </div>
           )}
