@@ -197,7 +197,7 @@ export default function ProductsPage() {
   async function handleToggleStatus(item: Product) {
     try {
       const updated = await toggleProductStatus(item.id!);
-      
+
       // Update the item with the new status while preserving all other properties
       setItems((prev: Product[]) =>
         prev.map((prod) => 

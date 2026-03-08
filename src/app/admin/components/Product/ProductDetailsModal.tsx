@@ -112,8 +112,7 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({
                 </p>
             </div>
             )}
-          {
-           .meta_description && (
+          {product.meta_description && (
               <div>
                 <h4 className="font-semibold text-gray-800 mb-1">Meta Keyword</h4>
                 <p className="text-gray-700 leading-relaxed border p-3 rounded-lg bg-gray-50 shadow-sm">
